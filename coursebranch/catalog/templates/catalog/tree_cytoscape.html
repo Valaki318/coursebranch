@@ -10,10 +10,9 @@
 {% endblock %}
 
 {% block content %}
-<!-- tree_cytoscape template marker -->
 <div class="graph-layout">
     <div id="cy"></div>
-    <div class="graph-boundary"></div>
+    <div class="graph-boundary" id="graph-boundary"></div>
 
     <!-- Legend -->
     <div class="graph-legend">
@@ -25,6 +24,10 @@
         <div class="legend-item">
             <span class="legend-color prereq"></span>
             <small>Prereq path</small>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color muted"></span>
+            <small>Dimmed</small>
         </div>
         <hr>
         <h6>Levels</h6>
@@ -44,7 +47,10 @@
             <span class="legend-color" style="background-color: var(--graph-level-400);"></span>
             <small>400-level</small>
         </div>
-        
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: var(--graph-level-500);"></span>
+            <small>500-level</small>
+        </div>
         <small class="legend-note">Click a course to see its path</small>
     </div>
 </div>
@@ -59,12 +65,13 @@
         const rootStyles = getComputedStyle(document.documentElement);
         const cssVar = (name) => rootStyles.getPropertyValue(name).trim();
         const graphColors = {
+            nodeDefault: cssVar('--graph-node-default'),
             nodeText: cssVar('--graph-node-text'),
             nodeBorder: cssVar('--graph-node-border'),
             nodeSelected: cssVar('--graph-node-selected'),
             nodePrereq: cssVar('--graph-node-prereq'),
             nodePrereqBorder: cssVar('--graph-node-prereq-border'),
-            nodeMuted: cssVar('--graph-muted-node'),
+            mutedNode: cssVar('--graph-muted-node'),
             edgeColor: cssVar('--graph-edge-color'),
             edgeHighlight: cssVar('--graph-edge-highlight'),
             levelColors: {
@@ -84,11 +91,11 @@
         };
         const panConfig = {
             paddingX: 350,
-            paddingY: 150,
             extraRatioX: 0.6,
+            paddingY: 150,
             extraRatioY: 0.3
         };
-        const boundaryEl = document.querySelector('.graph-boundary');
+        const boundaryEl = document.getElementById('graph-boundary');
 
         // Register dagre layout
         if (typeof cytoscape !== 'undefined' && typeof cytoscapeDagre !== 'undefined') {
@@ -120,16 +127,6 @@
 
         function initGraph(elements) {
             try {
-                var layoutOptions = {
-                    name: 'dagre',
-                    rankDir: 'LR',
-                    rankSep: 170,
-                    nodeSep: 100,
-                    padding: 80,
-                    animate: false,
-                    fit: false
-                };
-
                 var cy = cytoscape({
                     container: document.getElementById('cy'),
                     elements: elements,
@@ -144,7 +141,7 @@
                                 'label': 'data(label)',
                                 'text-valign': 'center',
                                 'text-halign': 'center',
-                                'background-color': graphColors.nodeDefault,
+                                'background-color': 'mapData(level, 100, 500, ' + graphColors.levelColors['100'] + ', ' + graphColors.levelColors['500'] + ')',
                                 'color': graphColors.nodeText,
                                 'width': 60,
                                 'height': 60,
@@ -153,8 +150,32 @@
                                 'text-wrap': 'wrap',
                                 'text-max-width': '50px',
                                 'border-width': 2,
-                                'border-color': graphColors.nodeBorder
+                                'border-color': 'mapData(level, 100, 500, ' + graphColors.levelColors['100'] + ', ' + graphColors.levelColors['500'] + ')'
                             }
+                        },
+                        {
+                            selector: 'node[level = "100"]',
+                            style: { 'background-color': graphColors.levelColors['100'], 'border-color': graphColors.levelColors['100'] }
+                        },
+                        {
+                            selector: 'node[level = "200"]',
+                            style: { 'background-color': graphColors.levelColors['200'], 'border-color': graphColors.levelColors['200'] }
+                        },
+                        {
+                            selector: 'node[level = "300"]',
+                            style: { 'background-color': graphColors.levelColors['300'], 'border-color': graphColors.levelColors['300'] }
+                        },
+                        {
+                            selector: 'node[level = "400"]',
+                            style: { 'background-color': graphColors.levelColors['400'], 'border-color': graphColors.levelColors['400'] }
+                        },
+                        {
+                            selector: 'node[level = "500"]',
+                            style: { 'background-color': graphColors.levelColors['500'], 'border-color': graphColors.levelColors['500'] }
+                        },
+                        {
+                            selector: 'node[level = "OTHER"]',
+                            style: { 'background-color': graphColors.levelColors['OTHER'], 'border-color': graphColors.levelColors['OTHER'] }
                         },
                         {
                             selector: 'edge',
@@ -178,75 +199,32 @@
                             }
                         },
                         {
+                            selector: 'node.selected',
+                            style: {
+                                'border-width': 5,
+                                'border-color': graphColors.nodeSelected
+                            }
+                        },
+                        {
                             selector: '.prereq',
                             style: {
                                 'background-color': graphColors.nodePrereq,
-                                'border-color': graphColors.nodePrereqBorder,
-                                'color': '#f0fdf4'
+                                'border-color': graphColors.nodePrereqBorder
                             }
                         },
                         {
                             selector: '.muted',
                             style: {
-                                'background-color': graphColors.nodeMuted,
-                                'border-color': graphColors.nodeBorder,
-                                'color': '#cbd5f5',
-                                'opacity': 0.2
+                                'background-color': graphColors.mutedNode,
+                                'border-color': graphColors.mutedNode,
+                                'opacity': 0.15,
+                                'text-opacity': 0.15
                             }
                         },
                         {
-                            selector: 'node[level = "100"]',
+                            selector: 'edge.muted',
                             style: {
-                                'background-color': graphColors.levelColors['100'],
-                                'border-color': graphColors.levelColors['100'],
-                                'color': '#0f172a'
-                            }
-                        },
-                        {
-                            selector: 'node[level = "200"]',
-                            style: {
-                                'background-color': graphColors.levelColors['200'],
-                                'border-color': graphColors.levelColors['200'],
-                                'color': '#0f172a'
-                            }
-                        },
-                        {
-                            selector: 'node[level = "300"]',
-                            style: {
-                                'background-color': graphColors.levelColors['300'],
-                                'border-color': graphColors.levelColors['300'],
-                                'color': '#0f172a'
-                            }
-                        },
-                        {
-                            selector: 'node[level = "400"]',
-                            style: {
-                                'background-color': graphColors.levelColors['400'],
-                                'border-color': graphColors.levelColors['400'],
-                                'color': '#0f172a'
-                            }
-                        },
-                        {
-                            selector: 'node[level = "500"]',
-                            style: {
-                                'background-color': graphColors.levelColors['500'],
-                                'border-color': graphColors.levelColors['500'],
-                                'color': '#0f172a'
-                            }
-                        },
-                        {
-                            selector: 'node[level = "OTHER"]',
-                            style: {
-                                'background-color': graphColors.levelColors['OTHER'],
-                                'border-color': graphColors.levelColors['OTHER'],
-                                'color': graphColors.nodeText
-                            }
-                        },
-                        {
-                            selector: 'node.selected',
-                            style: {
-                                'border-width': 5,
-                                'border-color': graphColors.nodeSelected
+                                'opacity': 0.05
                             }
                         }
                     ],
@@ -258,7 +236,50 @@
                     boxSelectionEnabled: false
                 });
 
-                cy.layout(layoutOptions).run();
+                // 1. Identify "Connected" and "Isolated" nodes
+                var allNodes = cy.nodes();
+                var isolatedNodes = allNodes.filter(function(ele){
+                    return ele.degree() === 0;
+                });
+                var connectedNodes = allNodes.not(isolatedNodes);
+                
+                // 2. Run Dagre layout ONLY on connected nodes
+                if (connectedNodes.length > 0) {
+                     var dagreLayout = connectedNodes.union(connectedNodes.connectedEdges()).layout({
+                        name: 'dagre',
+                        rankDir: 'LR',
+                        rankSep: 170,
+                        nodeSep: 100,
+                        padding: 80,
+                        animate: false,
+                        fit: false
+                    });
+                    dagreLayout.run();
+                }
+
+                // 3. Run Grid layout on isolated nodes and place them below
+                if (isolatedNodes.length > 0) {
+                    // Calculate bounding box of connected graph to know where to put the grid
+                    var connectedBB = connectedNodes.length > 0 ? connectedNodes.boundingBox() : { x1: 0, y1: 0, x2: 0, y2: 0, w: 0, h: 0 };
+                    
+                    // Start grid below the connected graph
+                    var gridStartY = connectedBB.y2 + 200; 
+                    
+                    var gridLayout = isolatedNodes.layout({
+                        name: 'grid',
+                        cols: 10, // Adjust columns to make it a nice block
+                        fit: false,
+                        boundingBox: {
+                            x1: connectedBB.x1, // Align left with connected graph
+                            y1: gridStartY,
+                            w: Math.max(1000, connectedBB.w), // Use width of graph or at least 1000
+                            h: 500 // Height will adapt but this provides constraint
+                        },
+                        spacingFactor: 1.5
+                    });
+                    gridLayout.run();
+                }
+
                 if (cy.elements().length > 0) {
                     cy.fit(cy.elements(), zoomConfig.fitPadding);
                     var desiredZoom = Math.min(zoomConfig.max, Math.max(zoomConfig.min, zoomConfig.initial));
