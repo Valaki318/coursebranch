@@ -85,6 +85,7 @@ db.sqlite3
 /catalog/upload/
 
 ### CSV Format
+``` swift
 code,name,description,instructor,credits,prerequisites
 CS101,Intro to CS,Learn fundamentals,Dr. Smith,3,
 CS235,Data Structures,Study DS and algos,Dr. Williams,3,CS101
@@ -95,7 +96,9 @@ CS330,Algorithms,Advanced algorithms,Prof Davis,3,CS235
     Order does not matter
 
     A second parsing pass automatically links prereqs
+```
 ### Graph Visualization
+``` swift
 Visit:
 /catalog/tree/
 Graph features:
@@ -111,9 +114,11 @@ Colored nodes
 Click to open course details
 
 Links show prerequisites (directed edges)
-
+```
 ### User Features
+``` swift
 /signup/ — Create account
 /login/ — Log in
 /logout/ — Log out
 /profile/ — Edit bio, major, graduation year
+```
