@@ -64,6 +64,7 @@ python manage.py runserver
 ```
 
 ### Project Structure
+``` swift
 accounts/
     models.py
     views.py
@@ -78,6 +79,7 @@ coursebranch/
 templates/
 static/
 db.sqlite3
+```
 
 ### CSV Catalog Upload
 /catalog/upload/
