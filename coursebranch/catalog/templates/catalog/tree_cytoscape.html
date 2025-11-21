@@ -59,7 +59,6 @@
         const rootStyles = getComputedStyle(document.documentElement);
         const cssVar = (name) => rootStyles.getPropertyValue(name).trim();
         const graphColors = {
-            nodeDefault: cssVar('--graph-node-default'),
             nodeText: cssVar('--graph-node-text'),
             nodeBorder: cssVar('--graph-node-border'),
             nodeSelected: cssVar('--graph-node-selected'),
