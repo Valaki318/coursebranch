@@ -1,0 +1,81 @@
+body.graph-page main {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: calc(100vh - 70px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+body.graph-page footer {
+    display: none;
+}
+
+.graph-layout {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#cy {
+    width: 100%;
+    height: calc(100vh - 70px);
+    min-height: 500px;
+    background-color: var(--graph-bg);
+}
+
+.graph-legend {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: var(--graph-legend-bg);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-width: 220px;
+}
+
+.graph-legend h6 {
+    margin: 0 0 10px 0;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.legend-color {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.legend-color.default {
+    background-color: var(--graph-node-default);
+}
+
+.legend-color.selected {
+    background-color: var(--graph-node-selected);
+}
+
+.legend-color.prereq {
+    background-color: var(--graph-node-prereq);
+}
+
+.legend-color.next {
+    background-color: var(--graph-node-next);
+}
+
+.legend-note {
+    display: block;
+    margin-top: 8px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
