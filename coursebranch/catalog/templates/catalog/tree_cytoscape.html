@@ -60,6 +60,12 @@
             edgeColor: cssVar('--graph-edge-color', '#cbd5e1'),
             edgeHighlight: cssVar('--graph-edge-highlight', '#22c55e')
         };
+        const zoomConfig = {
+            min: 0.75,
+            max: 2,
+            initial: 1.25,
+            fitPadding: 120
+        };
 
         // Register dagre layout
         if (typeof cytoscape !== 'undefined' && typeof cytoscapeDagre !== 'undefined') {
@@ -91,9 +97,22 @@
 
         function initGraph(elements) {
             try {
+                var layoutOptions = {
+                    name: 'dagre',
+                    rankDir: 'LR',
+                    rankSep: 120,
+                    nodeSep: 60,
+                    padding: 40,
+                    animate: false,
+                    fit: false
+                };
+
                 var cy = cytoscape({
                     container: document.getElementById('cy'),
                     elements: elements,
+                    minZoom: zoomConfig.min,
+                    maxZoom: zoomConfig.max,
+                    wheelSensitivity: 0.2,
 
                     style: [
                         {
@@ -162,22 +181,20 @@
                         }
                     ],
 
-                    layout: {
-                        name: 'dagre',
-                        rankDir: 'LR',
-                        rankSep: 120,
-                        nodeSep: 60,
-                        padding: 40,
-                        animate: false,
-                        fit: true
-                    },
-
                     // Interaction settings
                     autoungrabify: true, // Prevent node dragging
                     userZoomingEnabled: true,
                     userPanningEnabled: true,
                     boxSelectionEnabled: false
                 });
+
+                cy.layout(layoutOptions).run();
+                if (cy.elements().length > 0) {
+                    cy.fit(cy.elements(), zoomConfig.fitPadding);
+                    var desiredZoom = Math.min(zoomConfig.max, Math.max(zoomConfig.min, zoomConfig.initial));
+                    cy.zoom(desiredZoom);
+                    cy.center();
+                }
 
                 console.log('Graph initialized with', cy.nodes().length, 'nodes and', cy.edges().length, 'edges');
 
