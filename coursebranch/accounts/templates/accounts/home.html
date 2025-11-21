@@ -30,16 +30,19 @@
             border: none;
             border-radius: 4px;
             text-decoration: none;
-            cursor: pointer;
-        }
-        .logout-btn:hover {
-            background-color: #c82333;
         }
         .content {
             background: white;
             padding: 40px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .info {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
         }
     </style>
 </head>
@@ -50,9 +53,11 @@
     </div>
     
     <div class="content">
-        <h2>CourseBranch Dashboard</h2>
-        <p>You are now logged in!</p>
-        <p>Username: <strong>{{ user.username }}</strong></p>
+        <h2>CourseBranch</h2>
+        <div class="info">
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p>Course tree visualization coming soon!</p>
+        </div>
     </div>
 </body>
 </html>

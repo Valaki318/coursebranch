@@ -44,6 +44,4 @@ python manage.py runserver
 
 1. Sign up for a new account at `/signup/`
 2. Log in at `/login/`
-3. Access your profile at `/profile/` (NOT DONE YET)
-4. Browse and enroll in courses
-5. Leave reviews for courses you've taken
+3. Access your profile at `/profile/` 
