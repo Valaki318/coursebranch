@@ -12,3 +12,17 @@ __pycache__/
 
 # OS
 .DS_Store
+
+#Node modules
+node_modules/
+package-lock.json
+package.json
+
+#Static files
+static/
+
+#Migrations
+migrations/
+
+#Lib files
+lib/
