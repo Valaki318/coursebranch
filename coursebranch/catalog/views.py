@@ -14,6 +14,10 @@ def course_detail_view(request, code):
         "postreqs": Course.objects.filter(prerequisites=course)
     })
 
+def catalog_view(request):
+    courses = Course.objects.all().order_by('code')
+    return render(request, "catalog/catalog.html", {"courses": courses})
+
 def upload_catalog_view(request):
     colleges = College.objects.all()
 

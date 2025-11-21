@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Course Catalog - CourseBranch{% endblock %}
+
+{% block content %}
+<div class="catalog-container">
+    <div class="catalog-header">
+        <h1>Course Catalog</h1>
+        <p>Browse all available courses.</p>
+    </div>
+
+    <div class="features-grid">
+        {% for course in courses %}
+        <div class="feature-card">
+            <h3><a href="{% url 'course_detail' course.code %}">{{ course.code }}</a></h3>
+            <h4>{{ course.name }}</h4>
+            <p>{{ course.description|truncatewords:20 }}</p>
+            <div class="course-meta">
+                <span class="badge">{{ course.credits }} Credits</span>
+                <span class="instructor">{{ course.instructor }}</span>
+            </div>
+        </div>
+        {% empty %}
+        <p>No courses found in the catalog.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .catalog-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .catalog-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: var(--text-color);
+    }
+
+    .course-meta {
+        margin-top: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+    }
+
+    .badge {
+        background-color: var(--surface-color);
+        border: 1px solid var(--border-color);
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+    }
+</style>
+{% endblock %}
