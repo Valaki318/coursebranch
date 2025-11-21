@@ -1,61 +1,68 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Sign Up - CourseBranch</title>
-</head>
-<body>
-    <div class="container">
-        <h1>Sign Up</h1>
-        <form method="post">
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - CourseBranch{% endblock %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 0 auto;">
+    <div class="feature-card">
+        <h1 style="margin-bottom: 2rem; text-align: center;">Sign Up</h1>
+
+        <form method="post" style="display: flex; flex-direction: column; gap: 1.5rem;">
             {% csrf_token %}
-            
-            <!-- Show all form errors at the top -->
+
             {% if form.errors %}
-                <div class="error">
-                    <strong>Please correct the following errors:</strong>
-                    {% for field in form %}
-                        {% if field.errors %}
-                            <ul>
-                                {% for error in field.errors %}
-                                    <li><strong>{{ field.label }}:</strong> {{ error }}</li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
+            <div
+                style="color: #ef4444; background-color: rgba(239, 68, 68, 0.1); padding: 0.75rem; border-radius: 0.5rem;">
+                <strong>Please correct the following errors:</strong>
+                {% for field in form %}
+                {% if field.errors %}
+                <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+                    {% for error in field.errors %}
+                    <li><strong>{{ field.label }}:</strong> {{ error }}</li>
                     {% endfor %}
-                    {% if form.non_field_errors %}
-                        <ul>
-                            {% for error in form.non_field_errors %}
-                                <li>{{ error }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                </div>
-            {% endif %}
-            
-            <div class="form-group">
-                <label for="id_username">Username:</label>
-                {{ form.username }}
+                </ul>
+                {% endif %}
+                {% endfor %}
+                {% if form.non_field_errors %}
+                <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+                    {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
             </div>
-            
-            <div class="form-group">
-                <label for="id_password1">Password:</label>
-                {{ form.password1 }}
-                <small style="font-size: 12px; color: #666;">
+            {% endif %}
+
+            <div>
+                <label for="id_username"
+                    style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Username</label>
+                <input type="text" name="username" id="id_username" required
+                    style="width: 100%; padding: 0.75rem; background-color: var(--background-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 0.5rem;">
+            </div>
+
+            <div>
+                <label for="id_password1"
+                    style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Password</label>
+                <input type="password" name="password1" id="id_password1" required
+                    style="width: 100%; padding: 0.75rem; background-color: var(--background-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 0.5rem;">
+                <small style="display: block; margin-top: 0.25rem; font-size: 0.75rem; color: var(--text-muted);">
                     Your password must contain at least 8 characters and can't be entirely numeric.
                 </small>
             </div>
-            
-            <div class="form-group">
-                <label for="id_password2">Confirm Password:</label>
-                {{ form.password2 }}
+
+            <div>
+                <label for="id_password2"
+                    style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Confirm Password</label>
+                <input type="password" name="password2" id="id_password2" required
+                    style="width: 100%; padding: 0.75rem; background-color: var(--background-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 0.5rem;">
             </div>
-            
-            <button type="submit">Sign Up</button>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Sign Up</button>
         </form>
-        
-        <div class="login-link">
-            Already have an account? <a href="{% url 'login' %}">Login</a>
+
+        <div style="text-align: center; margin-top: 1.5rem; color: var(--text-muted);">
+            Already have an account? <a href="{% url 'login' %}" style="color: var(--primary-color);">Login</a>
         </div>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}
