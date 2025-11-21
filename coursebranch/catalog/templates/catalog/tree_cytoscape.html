@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Course Graph - CourseBranch{% endblock %}
+
+{% block body_class %}graph-page{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/graph.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- tree_cytoscape template marker -->
+<div class="graph-layout">
+    <div id="cy"></div>
+
+    <!-- Legend -->
+    <div class="graph-legend">
+        <h6>Legend</h6>
+        <div class="legend-item">
+            <span class="legend-color default"></span>
+            <small>Default</small>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color selected"></span>
+            <small>Selected</small>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color prereq"></span>
+            <small>Prereq</small>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color next"></span>
+            <small>Next</small>
+        </div>
+        <hr>
+        <small class="legend-note">Click a course to see its path</small>
+    </div>
+</div>
+
+<!-- CDN Links -->
+<script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
+<script src="https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"></script>
+<script src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const rootStyles = getComputedStyle(document.documentElement);
+        const cssVar = (name, fallback) => (rootStyles.getPropertyValue(name).trim() || fallback);
+        const graphColors = {
+            nodeDefault: cssVar('--graph-node-default', '#94a3b8'),
+            nodeText: cssVar('--graph-node-text', '#ffffff'),
+            nodeBorder: cssVar('--graph-node-border', '#64748b'),
+            nodeSelected: cssVar('--graph-node-selected', '#ef4444'),
+            nodeSelectedBorder: cssVar('--graph-node-selected-border', '#b91c1c'),
+            nodePrereq: cssVar('--graph-node-prereq', '#22c55e'),
+            nodePrereqBorder: cssVar('--graph-node-prereq-border', '#16a34a'),
+            nodeNext: cssVar('--graph-node-next', '#3b82f6'),
+            nodeNextBorder: cssVar('--graph-node-next-border', '#2563eb'),
+            edgeColor: cssVar('--graph-edge-color', '#cbd5e1'),
+            edgeHighlight: cssVar('--graph-edge-highlight', '#22c55e')
+        };
+
+        // Register dagre layout
+        if (typeof cytoscape !== 'undefined' && typeof cytoscapeDagre !== 'undefined') {
+            cytoscape.use(cytoscapeDagre);
+            console.log('Cytoscape-dagre registered successfully');
+        } else {
+            console.error('Cytoscape or cytoscapeDagre not loaded');
+            return;
+        }
+
+        // Fetch course data
+        fetch("{% url 'course_graph_data' %}")
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to fetch graph data');
+                return res.json();
+            })
+            .then(data => {
+                console.log('Graph data loaded:', data);
+                if (!data.elements || !data.elements.nodes || !data.elements.edges) {
+                    console.error('Invalid data format:', data);
+                    return;
+                }
+                initGraph(data.elements);
+            })
+            .catch(err => {
+                console.error("Error loading graph:", err);
+                document.getElementById('cy').innerHTML = '<div style="padding: 20px; color: red;">Error loading graph: ' + err.message + '</div>';
+            });
+
+        function initGraph(elements) {
+            try {
+                var cy = cytoscape({
+                    container: document.getElementById('cy'),
+                    elements: elements,
+
+                    style: [
+                        {
+                            selector: 'node',
+                            style: {
+                                'label': 'data(label)',
+                                'text-valign': 'center',
+                                'text-halign': 'center',
+                                'background-color': graphColors.nodeDefault,
+                                'color': graphColors.nodeText,
+                                'width': 60,
+                                'height': 60,
+                                'font-size': '11px',
+                                'font-weight': 'bold',
+                                'text-wrap': 'wrap',
+                                'text-max-width': '50px',
+                                'border-width': 2,
+                                'border-color': graphColors.nodeBorder
+                            }
+                        },
+                        {
+                            selector: 'edge',
+                            style: {
+                                'width': 2,
+                                'line-color': graphColors.edgeColor,
+                                'target-arrow-color': graphColors.edgeColor,
+                                'target-arrow-shape': 'triangle',
+                                'curve-style': 'bezier'
+                            }
+                        },
+                        {
+                            selector: '.selected',
+                            style: {
+                                'background-color': graphColors.nodeSelected,
+                                'border-width': 4,
+                                'border-color': graphColors.nodeSelectedBorder
+                            }
+                        },
+                        {
+                            selector: '.prereq',
+                            style: {
+                                'background-color': graphColors.nodePrereq,
+                                'border-color': graphColors.nodePrereqBorder
+                            }
+                        },
+                        {
+                            selector: '.next',
+                            style: {
+                                'background-color': graphColors.nodeNext,
+                                'border-color': graphColors.nodeNextBorder
+                            }
+                        },
+                        {
+                            selector: '.dimmed',
+                            style: {
+                                'opacity': 0.25
+                            }
+                        },
+                        {
+                            selector: '.highlight-edge',
+                            style: {
+                                'width': 3,
+                                'line-color': graphColors.edgeHighlight,
+                                'target-arrow-color': graphColors.edgeHighlight
+                            }
+                        }
+                    ],
+
+                    layout: {
+                        name: 'dagre',
+                        rankDir: 'LR',
+                        rankSep: 120,
+                        nodeSep: 60,
+                        padding: 40,
+                        animate: false,
+                        fit: true
+                    },
+
+                    // Interaction settings
+                    autoungrabify: true, // Prevent node dragging
+                    userZoomingEnabled: true,
+                    userPanningEnabled: true,
+                    boxSelectionEnabled: false
+                });
+
+                console.log('Graph initialized with', cy.nodes().length, 'nodes and', cy.edges().length, 'edges');
+
+                // Click handler
+                cy.on('tap', 'node', function (evt) {
+                    var node = evt.target;
+
+                    // Reset all styles
+                    cy.elements().removeClass('selected prereq next dimmed highlight-edge');
+
+                    // Mark selected node
+                    node.addClass('selected');
+
+                    // Get predecessors (prerequisites)
+                    var predecessors = node.predecessors('node');
+                    predecessors.addClass('prereq');
+
+                    // Get successors (next courses)
+                    var successors = node.successors('node');
+                    successors.addClass('next');
+
+                    // Highlight edges
+                    node.predecessors('edge').addClass('highlight-edge');
+                    node.successors('edge').addClass('highlight-edge');
+
+                    // Dim everything else
+                    cy.elements()
+                        .difference(node)
+                        .difference(predecessors)
+                        .difference(successors)
+                        .difference(node.connectedEdges())
+                        .addClass('dimmed');
+                });
+
+                // Background click to reset
+                cy.on('tap', function (evt) {
+                    if (evt.target === cy) {
+                        cy.elements().removeClass('selected prereq next dimmed highlight-edge');
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error initializing graph:', error);
+                document.getElementById('cy').innerHTML = '<div style="padding: 20px; color: red;">Error initializing graph: ' + error.message + '</div>';
+            }
+        }
+    });
+</script>
+{% endblock %}
