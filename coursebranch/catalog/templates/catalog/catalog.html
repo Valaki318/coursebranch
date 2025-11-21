@@ -1,13 +1,31 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Course Catalog - CourseBranch{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/catalog.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="catalog-container">
     <div class="catalog-header">
         <h1>Course Catalog</h1>
         <p>Browse all available courses.</p>
+
+        <!-- Filter Dropdown -->
+        <div class="filter-container">
+            <label for="course-filter">Show:</label>
+            <select id="course-filter" onchange="window.location.href='?filter=' + this.value">
+                <option value="all" {% if filter_type == 'all' %}selected{% endif %}>All Courses</option>
+                <option value="major" {% if filter_type == 'major' %}selected{% endif %} {% if not has_major %}disabled{% endif %}>My Major Only{% if not has_major %} (Set your major in profile){% endif %}</option>
+            </select>
+            {% if filter_type == 'major' and has_major %}
+            <span class="filter-badge">Showing: {{ user_college }} {{ user_major }}</span>
+            {% endif %}
+        </div>
     </div>
+
     <div class="features-grid">
         {% for course in courses %}
         <div class="feature-card">

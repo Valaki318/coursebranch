@@ -3,7 +3,38 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.conf import settings
 from .models import Profile
+import json
+import os
+
+
+def get_colleges_and_majors():
+    """Parses bu_courses.json to extract unique colleges and their majors (departments)."""
+    json_path = os.path.join(settings.BASE_DIR, 'bu_courses.json')
+    data = {}
+    try:
+        with open(json_path, 'r', encoding='utf-8') as f:
+            courses = json.load(f)
+            for course in courses:
+                code = course.get('course_code', '')
+                # Expected format: "COLLEGE DEPT NUMBER" e.g. "CAS CS 101"
+                parts = code.split()
+                if len(parts) >= 2:
+                    college = parts[0]
+                    dept = parts[1]
+                    if college not in data:
+                        data[college] = set()
+                    data[college].add(dept)
+    except FileNotFoundError:
+        pass
+    
+    # Convert sets to sorted lists
+    sorted_data = {}
+    for college, depts in data.items():
+        sorted_data[college] = sorted(list(depts))
+    
+    return sorted_data
 
 
 def signup_view(request):
@@ -43,11 +74,16 @@ def home_view(request):
 
 @login_required
 def profile_view(request):
-    """Basic profile editing (major/year/bio)"""
+    """Basic profile editing (college/major/year/bio)"""
     profile, _ = Profile.objects.get_or_create(user=request.user)
+    
+    # Get structure: { 'CAS': ['CS', 'MA', ...], 'ENG': [...] }
+    colleges_data = get_colleges_and_majors()
+    college_list = sorted(colleges_data.keys())
 
     if request.method == 'POST':
         profile.bio = request.POST.get('bio', '')
+        profile.college = request.POST.get('college', '')
         profile.major = request.POST.get('major', '')
         year = request.POST.get('graduation_year')
         profile.graduation_year = int(year) if year else None
@@ -57,5 +93,7 @@ def profile_view(request):
         return redirect('profile')
 
     return render(request, 'accounts/profile.html', {
-        'profile': profile
+        'profile': profile,
+        'colleges_data': json.dumps(colleges_data), # Pass as JSON for JS
+        'college_list': college_list
     })
