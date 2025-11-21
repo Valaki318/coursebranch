@@ -1,41 +1,51 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ course.code }} - Details</title>
-</head>
-<body>
-<div class="box">
-    <a href="/catalog/tree/">← Back to Course Tree</a>
-    <h1>{{ course.code }} — {{ course.name }}</h1>
+{% extends 'base.html' %}
 
-    <p>{{ course.description }}</p>
+{% block title %}{{ course.code }} - Details{% endblock %}
 
-    <div class="section">
-        <strong>Instructor:</strong> {{ course.instructor }}<br>
-        <strong>Credits:</strong> {{ course.credits }}
-    </div>
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <a href="/catalog/tree/" class="btn btn-outline" style="margin-bottom: 2rem; display: inline-block;">&larr; Back to Graph</a>
+    
+    <div class="feature-card">
+        <h1 style="margin-bottom: 1rem; color: var(--text-color);">{{ course.code }} — {{ course.name }}</h1>
+        <p style="font-size: 1.1rem; margin-bottom: 2rem; color: var(--text-muted);">{{ course.description }}</p>
 
-    <div class="section">
-        <h3>Prerequisites</h3>
-        {% if prereqs %}
-            {% for p in prereqs %}
-                <span class="tag">{{ p.code }}</span>
-            {% endfor %}
-        {% else %}
-            <p>No prerequisites</p>
-        {% endif %}
-    </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+            <div>
+                <strong style="color: var(--primary-color);">Instructor</strong>
+                <p>{{ course.instructor }}</p>
+            </div>
+            <div>
+                <strong style="color: var(--primary-color);">Credits</strong>
+                <p>{{ course.credits }}</p>
+            </div>
+        </div>
 
-    <div class="section">
-        <h3>Required For</h3>
-        {% if postreqs %}
-            {% for c in postreqs %}
-                <span class="tag">{{ c.code }}</span>
-            {% endfor %}
-        {% else %}
-            <p>Does not unlock other courses</p>
-        {% endif %}
+        <div style="margin-bottom: 2rem;">
+            <h3 style="margin-bottom: 1rem;">Prerequisites</h3>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                {% if prereqs %}
+                    {% for p in prereqs %}
+                        <a href="{% url 'course_detail' p.id %}" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.25rem 0.75rem;">{{ p.code }}</a>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: var(--text-muted);">No prerequisites</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div>
+            <h3 style="margin-bottom: 1rem;">Required For</h3>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                {% if postreqs %}
+                    {% for c in postreqs %}
+                        <a href="{% url 'course_detail' c.id %}" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.25rem 0.75rem;">{{ c.code }}</a>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: var(--text-muted);">Does not unlock other courses</p>
+                {% endif %}
+            </div>
+        </div>
     </div>
 </div>
-</body>
-</html>
+{% endblock %}

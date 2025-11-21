@@ -1,72 +1,89 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Profile - CourseBranch</title>
-</head>
-<body>
-    <div class="container">
-        <a href="{% url 'home' %}" class="back-link">← Back to Home</a>
-        
-        <h1>Your Profile</h1>
-        
-        <div class="user-info">
-            <p><strong>Username:</strong> {{ user.username }}</p>
-            <p><strong>Email:</strong> {{ user.email|default:"Not set" }}</p>
+{% extends 'base.html' %}
+
+{% block title %}Profile - CourseBranch{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div class="feature-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1>Your Profile</h1>
+            <a href="{% url 'home' %}" class="btn btn-outline">&larr; Back to Home</a>
         </div>
-        
+
+        <div
+            style="background-color: var(--background-color); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+            <p style="margin-bottom: 0.5rem;"><strong>Username:</strong> <span style="color: var(--text-muted);">{{
+                    user.username }}</span></p>
+            <p><strong>Email:</strong> <span style="color: var(--text-muted);">{{ user.email|default:"Not set" }}</span>
+            </p>
+        </div>
+
         {% if messages %}
-            {% for message in messages %}
-                <div class="success-message">{{ message }}</div>
-            {% endfor %}
+        {% for message in messages %}
+        <div
+            style="background-color: rgba(16, 185, 129, 0.1); color: #10b981; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border: 1px solid rgba(16, 185, 129, 0.2);">
+            {{ message }}
+        </div>
+        {% endfor %}
         {% endif %}
-        
-        <form method="post">
+
+        <form method="post" style="display: flex; flex-direction: column; gap: 1.5rem;">
             {% csrf_token %}
-            
-            <div class="form-group">
-                <label for="major">Major:</label>
-                <input type="text" id="major" name="major" value="{{ profile.major }}" placeholder="e.g., Computer Science">
-            </div>
-            
-            <div class="form-group">
-                <label for="graduation_year">Graduation Year:</label>
-                <input type="number" id="graduation_year" name="graduation_year" value="{{ profile.graduation_year|default:'' }}" placeholder="e.g., 2026">
-            </div>
-            
-            <div class="form-group">
-                <label for="bio">Bio:</label>
-                <textarea id="bio" name="bio" placeholder="Tell us about yourself...">{{ profile.bio }}</textarea>
+
+            <div>
+                <label for="major"
+                    style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Major</label>
+                <input type="text" id="major" name="major" value="{{ profile.major }}"
+                    placeholder="e.g., Computer Science"
+                    style="width: 100%; padding: 0.75rem; background-color: var(--background-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 0.5rem;">
             </div>
 
-	    <div class="form-group">
-		    <label for="university">University:</label>
-		    <select id="university" name="university" onchange="this.form.submit()">
-			    <option value="">-- Select University --</option>
-			    {% for u in universities %}
-			    <option value="{{ u.id }}" 
-				    {% if selected_university and u.id == selected_university.id %}selected{% endif %}>
-			    {{ u.name }}
-			    </option>
-			    {% endfor %}
-		    </select>
-	    </div>
+            <div>
+                <label for="graduation_year"
+                    style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Graduation Year</label>
+                <input type="number" id="graduation_year" name="graduation_year"
+                    value="{{ profile.graduation_year|default:'' }}" placeholder="e.g., 2026"
+                    style="width: 100%; padding: 0.75rem; background-color: var(--background-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 0.5rem;">
+            </div>
 
-	    <div class="form-group">
-		    <label for="college">College:</label>
-		    <select id="college" name="college">
-			    <option value="">-- Select College --</option>
-			    {% for c in colleges %}
-			    <option value="{{ c.id }}" {% if profile.college and profile.college.id == c.id %}selected{% endif %}>
-			    {{ c.name }}
-			    </option>
-			    {% endfor %}
-		    </select>
-	    </div>
-            
-            <button type="submit">Save Profile</button>
+            <div>
+                <label for="bio" style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Bio</label>
+                <textarea id="bio" name="bio" placeholder="Tell us about yourself..."
+                    style="width: 100%; padding: 0.75rem; background-color: var(--background-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 0.5rem; min-height: 120px; resize: vertical;">{{ profile.bio }}</textarea>
+            </div>
+
+            <div>
+                <label for="university"
+                    style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">University</label>
+                <select id="university" name="university" onchange="this.form.submit()"
+                    style="width: 100%; padding: 0.75rem; background-color: var(--background-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 0.5rem;">
+                    <option value="">-- Select University --</option>
+                    {% for u in universities %}
+                    <option value="{{ u.id }}" {% if selected_university and u.id==selected_university.id %}selected{%
+                        endif %}>
+                        {{ u.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="college"
+                    style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">College</label>
+                <select id="college" name="college"
+                    style="width: 100%; padding: 0.75rem; background-color: var(--background-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 0.5rem;">
+                    <option value="">-- Select College --</option>
+                    {% for c in colleges %}
+                    <option value="{{ c.id }}" {% if profile.college and profile.college.id==c.id %}selected{% endif %}>
+                        {{ c.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="align-self: flex-start;">Save Profile</button>
         </form>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}
 ```
-
