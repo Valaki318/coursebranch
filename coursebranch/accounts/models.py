@@ -5,6 +5,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     bio = models.TextField(blank=True, max_length=500)
     major = models.CharField(max_length=100, blank=True)
+    college = models.CharField(max_length=100, blank=True)
     graduation_year = models.IntegerField(null=True, blank=True)
     
     def __str__(self):
