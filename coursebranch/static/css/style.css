@@ -1,25 +1,4 @@
-:root {
-    --primary-color: #6366f1;
-    /* Indigo 500 */
-    --primary-hover: #4f46e5;
-    /* Indigo 600 */
-    --secondary-color: #ec4899;
-    /* Pink 500 */
-    --background-color: #0f172a;
-    /* Slate 900 */
-    --surface-color: #1e293b;
-    /* Slate 800 */
-    --text-color: #f8fafc;
-    /* Slate 50 */
-    --text-muted: #94a3b8;
-    /* Slate 400 */
-    --border-color: #334155;
-    /* Slate 700 */
-    --font-main: 'Inter', sans-serif;
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-}
+/* :root variables moved to variables.css */
 
 * {
     box-sizing: border-box;
@@ -49,7 +28,7 @@ a:hover {
 
 /* Header */
 header {
-    background-color: rgba(15, 23, 42, 0.8);
+    background-color: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border-color);
     position: sticky;
@@ -69,10 +48,7 @@ header {
 .logo {
     font-size: 1.5rem;
     font-weight: 700;
-    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--primary-color);
     letter-spacing: -0.025em;
 }
 
@@ -150,10 +126,7 @@ main {
     font-weight: 800;
     margin-bottom: 1.5rem;
     line-height: 1.1;
-    background: linear-gradient(to bottom right, #fff, #94a3b8);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--text-color);
 }
 
 .hero p {
