@@ -32,15 +32,20 @@
     /* Graph-specific colors */
     --graph-bg: #0f172a;
     --graph-legend-bg: #ffffff;
-    --graph-node-default: #94a3b8;
-    --graph-node-selected: #ef4444;
+    --graph-node-default: #64748b;
+    --graph-node-selected: #a855f7;
     --graph-node-prereq: #22c55e;
-    --graph-node-next: #3b82f6;
-    --graph-node-text: #ffffff;
-    --graph-node-border: #64748b;
-    --graph-node-selected-border: #b91c1c;
-    --graph-node-prereq-border: #16a34a;
-    --graph-node-next-border: #2563eb;
-    --graph-edge-color: #cbd5e1;
-    --graph-edge-highlight: #22c55e;
+    --graph-node-text: #0f172a;
+    --graph-node-border: #475569;
+    --graph-node-prereq-border: #15803d;
+    --graph-edge-color: #94a3b8;
+    --graph-edge-highlight: #0ea5e9;
+    --graph-boundary-color: #8b5cf6;
+    --graph-boundary-bg: rgba(139, 92, 246, 0.08);
+    --graph-muted-node: #94a3b8;
+    --graph-level-100: #0ea5e9;
+    --graph-level-200: #10b981;
+    --graph-level-300: #fbbf24;
+    --graph-level-400: #ec4899;
+    --graph-level-500: #8b5cf6;
 }
