@@ -55,6 +55,9 @@ def upload_catalog_view(request):
 
     return render(request, "catalog/upload.html", {"colleges": colleges})
 
+def course_tree_index_view(request):
+    return render(request, "catalog/tree.html")
+
 def course_tree_view(request):
     courses = Course.objects.all().prefetch_related("prerequisites")
     

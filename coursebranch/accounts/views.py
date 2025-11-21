@@ -38,7 +38,7 @@ def logout_view(request):
 
 def home_view(request):
     """Simple home page with or without login"""
-    return render(request, 'accounts/home.html')
+    return render(request, 'home.html')
 
 
 @login_required
