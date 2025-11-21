@@ -1,89 +1,102 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Profile - CourseBranch{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
 {% block content %}
-<div style="max-width: 800px; margin: 0 auto;">
+<div class="profile-container">
     <div class="feature-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div class="profile-header">
             <h1>Your Profile</h1>
             <a href="{% url 'home' %}" class="btn btn-outline">&larr; Back to Home</a>
         </div>
 
-        <div
-            style="background-color: var(--background-color); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 2rem; border: 1px solid var(--border-color);">
-            <p style="margin-bottom: 0.5rem;"><strong>Username:</strong> <span style="color: var(--text-muted);">{{
-                    user.username }}</span></p>
-            <p><strong>Email:</strong> <span style="color: var(--text-muted);">{{ user.email|default:"Not set" }}</span>
-            </p>
+        <div class="profile-info-box">
+            <p><strong>Username:</strong> <span class="muted-text">{{ user.username }}</span></p>
+            <p><strong>Email:</strong> <span class="muted-text">{{ user.email|default:"Not set" }}</span></p>
         </div>
 
         {% if messages %}
         {% for message in messages %}
-        <div
-            style="background-color: rgba(16, 185, 129, 0.1); color: #10b981; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border: 1px solid rgba(16, 185, 129, 0.2);">
+        <div class="success-message">
             {{ message }}
         </div>
         {% endfor %}
         {% endif %}
 
-        <form method="post" style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <form method="post" class="profile-form">
             {% csrf_token %}
 
-            <div>
-                <label for="major"
-                    style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Major</label>
-                <input type="text" id="major" name="major" value="{{ profile.major }}"
-                    placeholder="e.g., Computer Science"
-                    style="width: 100%; padding: 0.75rem; background-color: var(--background-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 0.5rem;">
+            <div class="form-grid-2col">
+                <div class="form-field">
+                    <label for="college">College</label>
+                    <select id="college" name="college">
+                        <option value="">-- Select College --</option>
+                        {% for col in college_list %}
+                        <option value="{{ col }}" {% if profile.college == col %}selected{% endif %}>{{ col }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label for="major">Major (Dept)</label>
+                    <select id="major" name="major">
+                        <option value="">-- Select Major --</option>
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
             </div>
 
-            <div>
-                <label for="graduation_year"
-                    style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Graduation Year</label>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const collegesData = JSON.parse('{{ colleges_data|escapejs }}');
+                    const collegeSelect = document.getElementById('college');
+                    const majorSelect = document.getElementById('major');
+                    const currentMajor = "{{ profile.major|escapejs }}";
+
+                    function updateMajors() {
+                        const selectedCollege = collegeSelect.value;
+                        majorSelect.innerHTML = '<option value="">-- Select Major --</option>';
+
+                        if (selectedCollege && collegesData[selectedCollege]) {
+                            collegesData[selectedCollege].forEach(dept => {
+                                const option = document.createElement('option');
+                                option.value = dept;
+                                option.textContent = dept;
+                                if (dept === currentMajor) {
+                                    option.selected = true;
+                                }
+                                majorSelect.appendChild(option);
+                            });
+                        }
+                    }
+
+                    collegeSelect.addEventListener('change', updateMajors);
+
+                    // Initial population
+                    if (collegeSelect.value) {
+                        updateMajors();
+                    }
+                });
+            </script>
+
+            <div class="form-field">
+                <label for="graduation_year">Graduation Year</label>
                 <input type="number" id="graduation_year" name="graduation_year"
-                    value="{{ profile.graduation_year|default:'' }}" placeholder="e.g., 2026"
-                    style="width: 100%; padding: 0.75rem; background-color: var(--background-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 0.5rem;">
+                    value="{{ profile.graduation_year|default:'' }}" placeholder="e.g., 2026">
             </div>
 
-            <div>
-                <label for="bio" style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Bio</label>
-                <textarea id="bio" name="bio" placeholder="Tell us about yourself..."
-                    style="width: 100%; padding: 0.75rem; background-color: var(--background-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 0.5rem; min-height: 120px; resize: vertical;">{{ profile.bio }}</textarea>
+            <div class="form-field">
+                <label for="bio">Bio</label>
+                <textarea id="bio" name="bio" placeholder="Tell us about yourself...">{{ profile.bio }}</textarea>
             </div>
 
-            <div>
-                <label for="university"
-                    style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">University</label>
-                <select id="university" name="university" onchange="this.form.submit()"
-                    style="width: 100%; padding: 0.75rem; background-color: var(--background-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 0.5rem;">
-                    <option value="">-- Select University --</option>
-                    {% for u in universities %}
-                    <option value="{{ u.id }}" {% if selected_university and u.id==selected_university.id %}selected{%
-                        endif %}>
-                        {{ u.name }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div>
-                <label for="college"
-                    style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">College</label>
-                <select id="college" name="college"
-                    style="width: 100%; padding: 0.75rem; background-color: var(--background-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 0.5rem;">
-                    <option value="">-- Select College --</option>
-                    {% for c in colleges %}
-                    <option value="{{ c.id }}" {% if profile.college and profile.college.id==c.id %}selected{% endif %}>
-                        {{ c.name }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <button type="submit" class="btn btn-primary" style="align-self: flex-start;">Save Profile</button>
+            <button type="submit" class="btn btn-primary form-submit">Save Profile</button>
         </form>
     </div>
 </div>
 {% endblock %}
-```
