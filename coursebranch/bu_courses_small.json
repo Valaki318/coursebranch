@@ -18,16 +18,124 @@
     "required_courses": ["CS 101"]
   },
   {
+    "course_code": "CS 210",
+    "course_name": "Computer Systems",
+    "description": "Intro to computer systems architecture.",
+    "required_courses": ["CS 101"]
+  },
+  {
+    "course_code": "CS 220",
+    "course_name": "Discrete Structures",
+    "description": "Mathematical foundations for CS.",
+    "required_courses": ["CS 102"]
+  },
+  {
+    "course_code": "CS 230",
+    "course_name": "Logic Design",
+    "description": "Digital logic and circuit design.",
+    "required_courses": ["CS 101"]
+  },
+  {
+    "course_code": "CS 240",
+    "course_name": "Programming Paradigms",
+    "description": "Procedural, OOP, and functional paradigms.",
+    "required_courses": ["CS 201"]
+  },
+  {
+    "course_code": "CS 250",
+    "course_name": "Web Development",
+    "description": "Intro to modern web stack.",
+    "required_courses": ["CS 201"]
+  },
+  {
+    "course_code": "CS 260",
+    "course_name": "Mobile Development",
+    "description": "Building mobile applications.",
+    "required_courses": ["CS 201"]
+  },
+  {
+    "course_code": "CS 270",
+    "course_name": "Computer Graphics",
+    "description": "Rendering and visual computing.",
+    "required_courses": ["CS 201", "CS 220"]
+  },
+  {
+    "course_code": "CS 280",
+    "course_name": "Databases",
+    "description": "Relational and NoSQL databases.",
+    "required_courses": ["CS 201"]
+  },
+  {
+    "course_code": "CS 290",
+    "course_name": "Networking Basics",
+    "description": "Computer networking fundamentals.",
+    "required_courses": ["CS 210"]
+  },
+  {
+    "course_code": "CS 300",
+    "course_name": "Operating Systems",
+    "description": "Core OS concepts.",
+    "required_courses": ["CS 210", "CS 201"]
+  },
+  {
+    "course_code": "CS 310",
+    "course_name": "Software Engineering",
+    "description": "Software design and development process.",
+    "required_courses": ["CS 240"]
+  },
+  {
+    "course_code": "CS 320",
+    "course_name": "Programming Languages",
+    "description": "Language theory and implementation.",
+    "required_courses": ["CS 220", "CS 240"]
+  },
+  {
     "course_code": "CS 330",
     "course_name": "Algorithms",
-    "description": "Algos.",
-    "required_courses": ["CS 201", "CS 102"]
+    "description": "Design and analysis of algorithms.",
+    "required_courses": ["CS 201", "CS 220"]
+  },
+  {
+    "course_code": "CS 340",
+    "course_name": "Parallel Computing",
+    "description": "Parallel programming models.",
+    "required_courses": ["CS 300"]
   },
   {
     "course_code": "CS 350",
-    "course_name": "Systems",
-    "description": "Systems.",
-    "required_courses": ["CS 201"]
+    "course_name": "Systems Engineering",
+    "description": "Systems design and integration.",
+    "required_courses": ["CS 300"]
+  },
+  {
+    "course_code": "CS 360",
+    "course_name": "Machine Learning",
+    "description": "Intro to ML algorithms.",
+    "required_courses": ["CS 330", "CS 220"]
+  },
+  {
+    "course_code": "CS 370",
+    "course_name": "Artificial Intelligence",
+    "description": "Search, reasoning, planning.",
+    "required_courses": ["CS 330"]
+  },
+  {
+    "course_code": "CS 380",
+    "course_name": "Data Mining",
+    "description": "Pattern discovery in data sets.",
+    "required_courses": ["CS 330"]
+  },
+  {
+    "course_code": "CS 390",
+    "course_name": "Security Fundamentals",
+    "description": "Cybersecurity principles.",
+    "required_courses": ["CS 300"]
+  },
+  {
+    "course_code": "CS 400",
+    "course_name": "Capstone Project",
+    "description": "Team-based culminating project.",
+    "required_courses": ["CS 310", "CS 360"]
   }
 ]
 

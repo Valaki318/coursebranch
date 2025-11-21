@@ -13,27 +13,38 @@
 <!-- tree_cytoscape template marker -->
 <div class="graph-layout">
     <div id="cy"></div>
+    <div class="graph-boundary"></div>
 
     <!-- Legend -->
     <div class="graph-legend">
         <h6>Legend</h6>
-        <div class="legend-item">
-            <span class="legend-color default"></span>
-            <small>Default</small>
-        </div>
         <div class="legend-item">
             <span class="legend-color selected"></span>
             <small>Selected</small>
         </div>
         <div class="legend-item">
             <span class="legend-color prereq"></span>
-            <small>Prereq</small>
-        </div>
-        <div class="legend-item">
-            <span class="legend-color next"></span>
-            <small>Next</small>
+            <small>Prereq path</small>
         </div>
         <hr>
+        <h6>Levels</h6>
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: var(--graph-level-100);"></span>
+            <small>100-level</small>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: var(--graph-level-200);"></span>
+            <small>200-level</small>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: var(--graph-level-300);"></span>
+            <small>300-level</small>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: var(--graph-level-400);"></span>
+            <small>400-level</small>
+        </div>
+        
         <small class="legend-note">Click a course to see its path</small>
     </div>
 </div>
@@ -46,19 +57,25 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const rootStyles = getComputedStyle(document.documentElement);
-        const cssVar = (name, fallback) => (rootStyles.getPropertyValue(name).trim() || fallback);
+        const cssVar = (name) => rootStyles.getPropertyValue(name).trim();
         const graphColors = {
-            nodeDefault: cssVar('--graph-node-default', '#94a3b8'),
-            nodeText: cssVar('--graph-node-text', '#ffffff'),
-            nodeBorder: cssVar('--graph-node-border', '#64748b'),
-            nodeSelected: cssVar('--graph-node-selected', '#ef4444'),
-            nodeSelectedBorder: cssVar('--graph-node-selected-border', '#b91c1c'),
-            nodePrereq: cssVar('--graph-node-prereq', '#22c55e'),
-            nodePrereqBorder: cssVar('--graph-node-prereq-border', '#16a34a'),
-            nodeNext: cssVar('--graph-node-next', '#3b82f6'),
-            nodeNextBorder: cssVar('--graph-node-next-border', '#2563eb'),
-            edgeColor: cssVar('--graph-edge-color', '#cbd5e1'),
-            edgeHighlight: cssVar('--graph-edge-highlight', '#22c55e')
+            nodeDefault: cssVar('--graph-node-default'),
+            nodeText: cssVar('--graph-node-text'),
+            nodeBorder: cssVar('--graph-node-border'),
+            nodeSelected: cssVar('--graph-node-selected'),
+            nodePrereq: cssVar('--graph-node-prereq'),
+            nodePrereqBorder: cssVar('--graph-node-prereq-border'),
+            nodeMuted: cssVar('--graph-muted-node'),
+            edgeColor: cssVar('--graph-edge-color'),
+            edgeHighlight: cssVar('--graph-edge-highlight'),
+            levelColors: {
+                '100': cssVar('--graph-level-100'),
+                '200': cssVar('--graph-level-200'),
+                '300': cssVar('--graph-level-300'),
+                '400': cssVar('--graph-level-400'),
+                '500': cssVar('--graph-level-500'),
+                'OTHER': cssVar('--graph-node-default')
+            }
         };
         const zoomConfig = {
             min: 0.75,
@@ -66,6 +83,13 @@
             initial: 1.25,
             fitPadding: 120
         };
+        const panConfig = {
+            paddingX: 350,
+            paddingY: 150,
+            extraRatioX: 0.6,
+            extraRatioY: 0.3
+        };
+        const boundaryEl = document.querySelector('.graph-boundary');
 
         // Register dagre layout
         if (typeof cytoscape !== 'undefined' && typeof cytoscapeDagre !== 'undefined') {
@@ -100,9 +124,9 @@
                 var layoutOptions = {
                     name: 'dagre',
                     rankDir: 'LR',
-                    rankSep: 120,
-                    nodeSep: 60,
-                    padding: 40,
+                    rankSep: 170,
+                    nodeSep: 100,
+                    padding: 80,
                     animate: false,
                     fit: false
                 };
@@ -140,35 +164,10 @@
                                 'line-color': graphColors.edgeColor,
                                 'target-arrow-color': graphColors.edgeColor,
                                 'target-arrow-shape': 'triangle',
-                                'curve-style': 'bezier'
-                            }
-                        },
-                        {
-                            selector: '.selected',
-                            style: {
-                                'background-color': graphColors.nodeSelected,
-                                'border-width': 4,
-                                'border-color': graphColors.nodeSelectedBorder
-                            }
-                        },
-                        {
-                            selector: '.prereq',
-                            style: {
-                                'background-color': graphColors.nodePrereq,
-                                'border-color': graphColors.nodePrereqBorder
-                            }
-                        },
-                        {
-                            selector: '.next',
-                            style: {
-                                'background-color': graphColors.nodeNext,
-                                'border-color': graphColors.nodeNextBorder
-                            }
-                        },
-                        {
-                            selector: '.dimmed',
-                            style: {
-                                'opacity': 0.25
+                                'curve-style': 'taxi',
+                                'taxi-direction': 'horizontal',
+                                'taxi-turn-min-distance': 40,
+                                'opacity': 0.85
                             }
                         },
                         {
@@ -177,6 +176,78 @@
                                 'width': 3,
                                 'line-color': graphColors.edgeHighlight,
                                 'target-arrow-color': graphColors.edgeHighlight
+                            }
+                        },
+                        {
+                            selector: '.prereq',
+                            style: {
+                                'background-color': graphColors.nodePrereq,
+                                'border-color': graphColors.nodePrereqBorder,
+                                'color': '#f0fdf4'
+                            }
+                        },
+                        {
+                            selector: '.muted',
+                            style: {
+                                'background-color': graphColors.nodeMuted,
+                                'border-color': graphColors.nodeBorder,
+                                'color': '#cbd5f5',
+                                'opacity': 0.2
+                            }
+                        },
+                        {
+                            selector: 'node[level = "100"]',
+                            style: {
+                                'background-color': graphColors.levelColors['100'],
+                                'border-color': graphColors.levelColors['100'],
+                                'color': '#0f172a'
+                            }
+                        },
+                        {
+                            selector: 'node[level = "200"]',
+                            style: {
+                                'background-color': graphColors.levelColors['200'],
+                                'border-color': graphColors.levelColors['200'],
+                                'color': '#0f172a'
+                            }
+                        },
+                        {
+                            selector: 'node[level = "300"]',
+                            style: {
+                                'background-color': graphColors.levelColors['300'],
+                                'border-color': graphColors.levelColors['300'],
+                                'color': '#0f172a'
+                            }
+                        },
+                        {
+                            selector: 'node[level = "400"]',
+                            style: {
+                                'background-color': graphColors.levelColors['400'],
+                                'border-color': graphColors.levelColors['400'],
+                                'color': '#0f172a'
+                            }
+                        },
+                        {
+                            selector: 'node[level = "500"]',
+                            style: {
+                                'background-color': graphColors.levelColors['500'],
+                                'border-color': graphColors.levelColors['500'],
+                                'color': '#0f172a'
+                            }
+                        },
+                        {
+                            selector: 'node[level = "OTHER"]',
+                            style: {
+                                'background-color': graphColors.levelColors['OTHER'],
+                                'border-color': graphColors.levelColors['OTHER'],
+                                'color': graphColors.nodeText
+                            }
+                        },
+                        {
+                            selector: 'node.selected',
+                            style: {
+                                'border-width': 5,
+                                'border-color': graphColors.nodeSelected
                             }
                         }
                     ],
@@ -194,6 +265,85 @@
                     var desiredZoom = Math.min(zoomConfig.max, Math.max(zoomConfig.min, zoomConfig.initial));
                     cy.zoom(desiredZoom);
                     cy.center();
+
+                    var container = cy.container();
+                    var graphBounds = cy.elements().boundingBox();
+                    graphBounds.width = graphBounds.x2 - graphBounds.x1;
+                    graphBounds.height = graphBounds.y2 - graphBounds.y1;
+
+                    var allowedBounds = {
+                        x1: graphBounds.x1 - panConfig.paddingX - graphBounds.width * panConfig.extraRatioX,
+                        x2: graphBounds.x2 + panConfig.paddingX + graphBounds.width * panConfig.extraRatioX,
+                        y1: graphBounds.y1 - panConfig.paddingY - graphBounds.height * panConfig.extraRatioY,
+                        y2: graphBounds.y2 + panConfig.paddingY + graphBounds.height * panConfig.extraRatioY
+                    };
+
+                    var clampPan = function () {
+                        var zoom = cy.zoom();
+                        var pan = cy.pan();
+                        var width = container.clientWidth;
+                        var height = container.clientHeight;
+                        var halfWidth = (width / zoom) / 2;
+                        var halfHeight = (height / zoom) / 2;
+
+                        var minCenterX = allowedBounds.x1 + halfWidth;
+                        var maxCenterX = allowedBounds.x2 - halfWidth;
+                        var minCenterY = allowedBounds.y1 + halfHeight;
+                        var maxCenterY = allowedBounds.y2 - halfHeight;
+
+                        if (minCenterX > maxCenterX) {
+                            minCenterX = maxCenterX = (graphBounds.x1 + graphBounds.x2) / 2;
+                        }
+                        if (minCenterY > maxCenterY) {
+                            minCenterY = maxCenterY = (graphBounds.y1 + graphBounds.y2) / 2;
+                        }
+
+                        var center = {
+                            x: (width / 2 - pan.x) / zoom,
+                            y: (height / 2 - pan.y) / zoom
+                        };
+
+                        var clampedCenter = {
+                            x: Math.min(maxCenterX, Math.max(minCenterX, center.x)),
+                            y: Math.min(maxCenterY, Math.max(minCenterY, center.y))
+                        };
+
+                        if (Math.abs(clampedCenter.x - center.x) > 0.01 || Math.abs(clampedCenter.y - center.y) > 0.01) {
+                            cy.pan({
+                                x: width / 2 - clampedCenter.x * zoom,
+                                y: height / 2 - clampedCenter.y * zoom
+                            });
+                        }
+
+                        updateBoundaryVisual();
+                    };
+
+                    var updateBoundaryVisual = function () {
+                        if (!boundaryEl) return;
+                        var zoom = cy.zoom();
+                        var pan = cy.pan();
+                        var width = container.clientWidth;
+                        var height = container.clientHeight;
+
+                        var x1 = allowedBounds.x1 * zoom + pan.x;
+                        var y1 = allowedBounds.y1 * zoom + pan.y;
+                        var x2 = allowedBounds.x2 * zoom + pan.x;
+                        var y2 = allowedBounds.y2 * zoom + pan.y;
+
+                        var left = Math.max(0, Math.min(width, x1));
+                        var top = Math.max(0, Math.min(height, y1));
+                        var right = Math.min(width, Math.max(left + 1, x2));
+                        var bottom = Math.min(height, Math.max(top + 1, y2));
+
+                        boundaryEl.style.left = left + 'px';
+                        boundaryEl.style.top = top + 'px';
+                        boundaryEl.style.width = (right - left) + 'px';
+                        boundaryEl.style.height = (bottom - top) + 'px';
+                    };
+
+                    cy.on('pan zoom', clampPan);
+                    window.addEventListener('resize', clampPan);
+                    clampPan();
                 }
 
                 console.log('Graph initialized with', cy.nodes().length, 'nodes and', cy.edges().length, 'edges');
@@ -202,37 +352,26 @@
                 cy.on('tap', 'node', function (evt) {
                     var node = evt.target;
 
-                    // Reset all styles
-                    cy.elements().removeClass('selected prereq next dimmed highlight-edge');
+                    cy.elements().removeClass('selected prereq muted highlight-edge');
 
-                    // Mark selected node
+                    var prereqNodes = node.predecessors('node');
+                    var prereqEdges = node.predecessors('edge');
+
                     node.addClass('selected');
+                    prereqNodes.addClass('prereq');
+                    prereqEdges.addClass('highlight-edge');
 
-                    // Get predecessors (prerequisites)
-                    var predecessors = node.predecessors('node');
-                    predecessors.addClass('prereq');
-
-                    // Get successors (next courses)
-                    var successors = node.successors('node');
-                    successors.addClass('next');
-
-                    // Highlight edges
-                    node.predecessors('edge').addClass('highlight-edge');
-                    node.successors('edge').addClass('highlight-edge');
-
-                    // Dim everything else
                     cy.elements()
                         .difference(node)
-                        .difference(predecessors)
-                        .difference(successors)
-                        .difference(node.connectedEdges())
-                        .addClass('dimmed');
+                        .difference(prereqNodes)
+                        .difference(prereqEdges)
+                        .addClass('muted');
                 });
 
                 // Background click to reset
                 cy.on('tap', function (evt) {
                     if (evt.target === cy) {
-                        cy.elements().removeClass('selected prereq next dimmed highlight-edge');
+                        cy.elements().removeClass('selected prereq muted highlight-edge');
                     }
                 });
 
