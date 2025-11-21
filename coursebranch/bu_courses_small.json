@@ -1,0 +1,33 @@
+[
+  {
+    "course_code": "CS 101",
+    "course_name": "Intro to CS",
+    "description": "Basics.",
+    "required_courses": []
+  },
+  {
+    "course_code": "CS 102",
+    "course_name": "Math for CS",
+    "description": "Math.",
+    "required_courses": []
+  },
+  {
+    "course_code": "CS 201",
+    "course_name": "Data Structures",
+    "description": "DS.",
+    "required_courses": ["CS 101"]
+  },
+  {
+    "course_code": "CS 330",
+    "course_name": "Algorithms",
+    "description": "Algos.",
+    "required_courses": ["CS 201", "CS 102"]
+  },
+  {
+    "course_code": "CS 350",
+    "course_name": "Systems",
+    "description": "Systems.",
+    "required_courses": ["CS 201"]
+  }
+]
+
