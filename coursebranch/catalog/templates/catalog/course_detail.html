@@ -4,7 +4,7 @@
 
 {% block content %}
 <div style="max-width: 800px; margin: 0 auto;">
-    <a href="/catalog/tree/" class="btn btn-outline" style="margin-bottom: 2rem; display: inline-block;">&larr; Back to Graph</a>
+    <a href="{% url 'catalog' %}?filter={{ filter_type }}" class="btn btn-outline" style="margin-bottom: 2rem; display: inline-block;">&larr; Back to Course Catalog</a>
     
     <div class="feature-card">
         <h1 style="margin-bottom: 1rem; color: var(--text-color);">{{ course.code }} — {{ course.name }}</h1>
@@ -26,7 +26,7 @@
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                 {% if prereqs %}
                     {% for p in prereqs %}
-                        <a href="{% url 'course_detail' p.id %}" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.25rem 0.75rem;">{{ p.code }}</a>
+                        <a href="{% url 'course_detail' p.code %}?filter={{ filter_type }}" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.25rem 0.75rem;">{{ p.code }}</a>
                     {% endfor %}
                 {% else %}
                     <p style="color: var(--text-muted);">No prerequisites</p>
@@ -34,18 +34,28 @@
             </div>
         </div>
 
-        <div>
+        <div style="margin-bottom: 2rem;">
             <h3 style="margin-bottom: 1rem;">Required For</h3>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                 {% if postreqs %}
                     {% for c in postreqs %}
-                        <a href="{% url 'course_detail' c.id %}" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.25rem 0.75rem;">{{ c.code }}</a>
+                        <a href="{% url 'course_detail' c.code %}?filter={{ filter_type }}" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.25rem 0.75rem;">{{ c.code }}</a>
                     {% endfor %}
                 {% else %}
                     <p style="color: var(--text-muted);">Does not unlock other courses</p>
                 {% endif %}
             </div>
         </div>
+
+        <!-- Reviews Section Placeholder -->
+        <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--graph-node-border);">
+            <h3 style="margin-bottom: 1rem;">Reviews</h3>
+            <div class="review-placeholder" style="background: var(--graph-boundary-bg); padding: 1.5rem; border-radius: 8px; border: 1px dashed var(--graph-boundary-color);">
+                <p style="color: var(--text-muted); margin: 0;">Reviews functionality coming soon...</p>
+                <!-- TODO: Implement review model and fetching logic -->
+            </div>
+        </div>
+
     </div>
 </div>
 {% endblock %}

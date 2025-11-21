@@ -6,10 +6,12 @@ from .models import Course
 
 def course_detail_view(request, code):
     course = get_object_or_404(Course, code=code)
+    filter_type = request.GET.get('filter', 'all')
     return render(request, "catalog/course_detail.html", {
         "course": course,
         "prereqs": course.prerequisites.all(),
-        "postreqs": Course.objects.filter(prerequisites=course)
+        "postreqs": Course.objects.filter(prerequisites=course),
+        "filter_type": filter_type
     })
 
 def _get_major_query(major_source):

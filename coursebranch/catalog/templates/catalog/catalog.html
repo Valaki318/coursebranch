@@ -28,8 +28,8 @@
 
     <div class="features-grid">
         {% for course in courses %}
-        <div class="feature-card">
-            <h3><a href="{% url 'course_detail' course.code %}">{{ course.code }}</a></h3>
+        <div class="feature-card" onclick="window.location.href='{% url 'course_detail' course.code %}?filter={{ filter_type }}'" style="cursor: pointer;">
+            <h3>{{ course.code }}</h3>
             <h4>{{ course.name }}</h4>
             <p>{{ course.description|truncatewords:20 }}</p>
             <div class="course-meta">
