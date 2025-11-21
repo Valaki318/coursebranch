@@ -1,0 +1,11 @@
+code,name,description,instructor,credits,prerequisites
+CS101,Introduction to CS,Basics of programming.,Dr. Smith,3,
+CS102,Discrete Math,Math for CS.,Dr. Brown,3,
+CS201,Data Structures,Classic DS,Dr. White,3,CS101
+CS210,Computer Systems,Intro to systems,Dr. Black,4,CS101
+CS235,Advanced Data Structures,Advanced DS,Dr. Grey,3,CS201
+CS330,Algorithms,Algorithm design,Dr. Green,3,CS201;CS102
+CS340,Operating Systems,OS fundamentals,Dr. Taylor,4,CS210
+CS350,Databases,Relational DBs and SQL,Dr. Blue,3,CS201
+CS420,Machine Learning,ML foundations,Dr. Silver,3,CS330;CS102
+CS492,Compilers,Compiler design,Dr. Compiler,4,CS330;CS210

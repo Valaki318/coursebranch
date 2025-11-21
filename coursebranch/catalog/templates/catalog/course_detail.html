@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ course.code }} - Details</title>
+    <style>
+        body { font-family: Arial; padding: 30px; background: #111; color: #eee; }
+        .box {
+            max-width: 700px; margin: auto; background: #222;
+            padding: 25px; border-radius: 10px;
+        }
+        a { color: #66aaff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        h1 { margin-bottom: 10px; }
+        .section { margin-top: 20px; }
+        .tag { display: inline-block; background: #333;
+               padding: 5px 10px; margin: 3px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+<div class="box">
+    <a href="/catalog/tree/">← Back to Course Tree</a>
+    <h1>{{ course.code }} — {{ course.name }}</h1>
+
+    <p>{{ course.description }}</p>
+
+    <div class="section">
+        <strong>Instructor:</strong> {{ course.instructor }}<br>
+        <strong>Credits:</strong> {{ course.credits }}
+    </div>
+
+    <div class="section">
+        <h3>Prerequisites</h3>
+        {% if prereqs %}
+            {% for p in prereqs %}
+                <span class="tag">{{ p.code }}</span>
+            {% endfor %}
+        {% else %}
+            <p>No prerequisites</p>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <h3>Required For</h3>
+        {% if postreqs %}
+            {% for c in postreqs %}
+                <span class="tag">{{ c.code }}</span>
+            {% endfor %}
+        {% else %}
+            <p>Does not unlock other courses</p>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>
