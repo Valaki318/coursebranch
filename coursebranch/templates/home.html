@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - CourseBranch{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Explore Your Academic Journey</h1>
+    <p>Visualize course prerequisites, manage your academic path, and discover new learning opportunities with our
+        interactive course catalog.</p>
+
+    <div class="hero-actions">
+        <a href="/catalog/tree/" class="btn btn-primary btn-lg">View Graph</a>
+        <a href="/catalog/" class="btn btn-outline btn-lg">Browse Catalog</a>
+    </div>
+</div>
+
+<div class="features-grid">
+    <div class="feature-card">
+        <h3>Interactive Graph</h3>
+        <p>Navigate through a force-directed graph of course prerequisites. See how courses connect and plan your path
+            effectively.</p>
+    </div>
+
+    <div class="feature-card">
+        <h3>Detailed Catalog</h3>
+        <p>Access comprehensive information about courses, including descriptions, credits, and instructors.</p>
+    </div>
+
+    <div class="feature-card">
+        <h3>Student Profile</h3>
+        <p>Track your major, graduation year, and bio. Customize your academic profile to suit your needs.</p>
+    </div>
+</div>
+{% endblock %}
