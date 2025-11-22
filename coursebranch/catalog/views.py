@@ -7,11 +7,13 @@ from .models import Course
 def course_detail_view(request, code):
     course = get_object_or_404(Course, code=code)
     filter_type = request.GET.get('filter', 'all')
+    search_query = request.GET.get('q', '')
     return render(request, "catalog/course_detail.html", {
         "course": course,
         "prereqs": course.prerequisites.all(),
         "postreqs": Course.objects.filter(prerequisites=course),
-        "filter_type": filter_type
+        "filter_type": filter_type,
+        "search_query": search_query
     })
 
 def _get_major_query(major_source):
@@ -78,6 +80,7 @@ def _get_major_query(major_source):
 def catalog_view(request):
     # Get filter parameter (default to 'all')
     filter_type = request.GET.get('filter', 'all')
+    search_query = request.GET.get('q', '').strip()
     
     # Get user's major if logged in
     user_college = None
@@ -88,6 +91,22 @@ def catalog_view(request):
     
     courses_qs = Course.objects.all()
 
+    # Apply Search Filter
+    if search_query:
+        # Split query into terms
+        search_tokens = search_query.split()
+        search_q = Q()
+        
+        # Broad search: Code or Name contains tokens
+        # We use AND logic for multi-word search "Data Science" -> Data AND Science
+        for token in search_tokens:
+            search_q &= (Q(code__icontains=token) | Q(name__icontains=token))
+            
+        courses_qs = courses_qs.filter(search_q)
+
+    # Apply Major Filter (only if explicitly selected, OR combined?)
+    # Usually search overrides categories, but here they can stack.
+    # If I select "My Major Only" AND search "Data", I should see Data courses in my major.
     if filter_type == 'major' and user_major:
         # Filter by major using robust logic
         query = _get_major_query(user_major)
@@ -102,6 +121,7 @@ def catalog_view(request):
     return render(request, "catalog/catalog.html", {
         "courses": courses_qs, # Template expects iterable of objects with .code, .name, etc.
         "filter_type": filter_type,
+        "search_query": search_query,
         "user_college": user_college,
         "user_major": user_major,
         "has_major": bool(user_major)

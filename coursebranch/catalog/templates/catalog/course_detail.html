@@ -4,7 +4,8 @@
 
 {% block content %}
 <div style="max-width: 800px; margin: 0 auto;">
-    <a href="{% url 'catalog' %}?filter={{ filter_type }}" class="btn btn-outline" style="margin-bottom: 2rem; display: inline-block;">&larr; Back to Course Catalog</a>
+    <!-- Back button preserves filter AND search state -->
+    <a href="{% url 'catalog' %}?filter={{ filter_type }}&q={{ search_query|urlencode }}" class="btn btn-outline" style="margin-bottom: 2rem; display: inline-block;">&larr; Back to Course Catalog</a>
     
     <div class="feature-card">
         <h1 style="margin-bottom: 1rem; color: var(--text-color);">{{ course.code }} — {{ course.name }}</h1>
@@ -26,7 +27,7 @@
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                 {% if prereqs %}
                     {% for p in prereqs %}
-                        <a href="{% url 'course_detail' p.code %}?filter={{ filter_type }}" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.25rem 0.75rem;">{{ p.code }}</a>
+                        <a href="{% url 'course_detail' p.code %}?filter={{ filter_type }}&q={{ search_query|urlencode }}" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.25rem 0.75rem;">{{ p.code }}</a>
                     {% endfor %}
                 {% else %}
                     <p style="color: var(--text-muted);">No prerequisites</p>
@@ -39,7 +40,7 @@
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                 {% if postreqs %}
                     {% for c in postreqs %}
-                        <a href="{% url 'course_detail' c.code %}?filter={{ filter_type }}" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.25rem 0.75rem;">{{ c.code }}</a>
+                        <a href="{% url 'course_detail' c.code %}?filter={{ filter_type }}&q={{ search_query|urlencode }}" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.25rem 0.75rem;">{{ c.code }}</a>
                     {% endfor %}
                 {% else %}
                     <p style="color: var(--text-muted);">Does not unlock other courses</p>
