@@ -8,7 +8,23 @@
     <a href="{% url 'catalog' %}?filter={{ filter_type }}&q={{ search_query|urlencode }}" class="btn btn-outline" style="margin-bottom: 2rem; display: inline-block;">&larr; Back to Course Catalog</a>
     
     <div class="feature-card">
-        <h1 style="margin-bottom: 1rem; color: var(--text-color);">{{ course.code }} — {{ course.name }}</h1>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1 style="margin-bottom: 1rem; color: var(--text-color);">{{ course.code }} — {{ course.name }}</h1>
+            {% if authenticated %}
+                <button class="btn btn-primary"
+                    onclick="{% if course.code in completed_codes %}
+                                    removeCourse('{{ course.code }}')
+                            {% else %}
+                                    addCourse('{{ course.code }}')
+                            {% endif %}">
+                    {% if course.code in completed_codes %}
+                        Mark as incomplete
+                    {% else %}
+                        Mark as completed
+                    {% endif %}
+                </button>
+            {% endif %}
+        </div>
         <p style="font-size: 1.1rem; margin-bottom: 2rem; color: var(--text-muted);">{{ course.description }}</p>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
@@ -59,4 +75,37 @@
 
     </div>
 </div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    function addCourse(courseCode) {
+        modCourse(courseCode, true);
+    }
+
+    function removeCourse(courseCode) {
+        modCourse(courseCode, false);
+    }
+
+    function modCourse(courseCode, add) {
+
+        const formData = new FormData();
+        formData.append("code", courseCode);  
+        let url = add ? "{% url 'add_course' %}" : "{% url 'remove_course' %}";
+        fetch(url, {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}"
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status != "ok") {
+                alert("An error occured");
+            }
+            location.reload(true);
+        });
+        
+    }
+</script>
 {% endblock %}

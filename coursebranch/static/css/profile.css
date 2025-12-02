@@ -75,6 +75,9 @@
     resize: vertical;
 }
 
-.form-submit {
-    align-self: flex-start;
+.bottom-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
+

@@ -95,8 +95,12 @@
                 <textarea id="bio" name="bio" placeholder="Tell us about yourself...">{{ profile.bio }}</textarea>
             </div>
 
-            <button type="submit" class="btn btn-primary form-submit">Save Profile</button>
+            <div class="bottom-buttons">
+                <button type="submit" class="btn btn-primary">Save Profile</button>
+                <a href="{% url 'completed_courses' %}" class="btn btn-outline">Completed Courses</a>
+            </div>
         </form>
     </div>
 </div>
+
 {% endblock %}

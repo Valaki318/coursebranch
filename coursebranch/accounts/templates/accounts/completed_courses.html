@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Completed Courses - CourseBranch{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/catalog.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="catalog-container">
+    <a href="{% url 'profile' %}" class="btn btn-outline" style="margin-bottom: 2rem; display: inline-block;">&larr; Back to Profile Page</a>
+    <div class="catalog-header">
+        <h1>Completed Courses</h1>
+    </div>
+
+    <div class="features-grid">
+        {% for course in courses %}
+        <!-- Pass filter_type and search_query to detail view -->
+        <div class="feature-card" onclick="window.location.href='{% url 'course_detail' course.code %}?filter={{ filter_type }}&q={{ search_query|urlencode }}'" style="cursor: pointer;">
+            <h3>{{ course.code }}</h3>
+            <h4>{{ course.name }}</h4>
+            <p>{{ course.description|truncatewords:20 }}</p>
+            <div class="course-meta">
+                <span class="badge">{{ course.credits }} Credits</span>
+                <span class="instructor">{{ course.instructor }}</span>
+            </div>
+        </div>
+        {% empty %}
+        <div style="text-align: center; grid-column: 1/-1; padding: 2rem;">
+            <p style="font-size: 1.2rem; color: var(--text-muted);">No courses found matching your criteria.</p>
+            {% if search_query or filter_type != 'all' %}
+            <a href="{% url 'catalog' %}" class="btn btn-outline" style="margin-top: 1rem;">Clear Filters</a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
