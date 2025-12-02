@@ -8,5 +8,7 @@ urlpatterns = [
     path('course/<str:code>/', views.course_detail_view, name='course_detail'),
     path("graph.json", views.course_graph_json, name="course_graph_json"),
     path("add_course/", views.add_course, name="add_course"),
-    path("remove_course/", views.remove_course, name="remove_course")
+    path("remove_course/", views.remove_course, name="remove_course"),
+    path("course/<str:code>/review/", views.create_review, name="create_review")
+
 ]

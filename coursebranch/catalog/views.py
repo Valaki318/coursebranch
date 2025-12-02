@@ -1,8 +1,9 @@
 import re
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.db.models import Q
-from .models import Course
+from .models import Course, Review
+from django.contrib.auth.decorators import login_required
 
 def course_detail_view(request, code):
     course = get_object_or_404(Course, code=code)
@@ -14,7 +15,7 @@ def course_detail_view(request, code):
         prof = request.user.profile
         user_courses = prof.completed_courses.all()
 
-    completed_codes = [cs.code for cs in user_courses]
+    completed_codes = [cs.code for cs in user_courses] if user_courses else []
     
     return render(request, "catalog/course_detail.html", {
         "course": course,
@@ -246,5 +247,21 @@ def remove_course(request):
         prof = request.user.profile
         prof.completed_courses.remove(course)
         return JsonResponse({"status": "ok"})
+
+@login_required
+def create_review(request, code):
+    course = get_object_or_404(Course, code=code)
+
+    if request.method == "POST":
+        Review.objects.create(
+            course=course,
+            user=request.user,
+            rating=request.POST["rating"],
+            comment=request.POST["comment"]
+        )
+        return redirect("course_detail", code=course.code)
+
+    return render(request, "catalog/create_review.html", {"course": course})
+
 
 

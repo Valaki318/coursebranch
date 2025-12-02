@@ -64,15 +64,33 @@
             </div>
         </div>
 
-        <!-- Reviews Section Placeholder -->
         <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--graph-node-border);">
             <h3 style="margin-bottom: 1rem;">Reviews</h3>
-            <div class="review-placeholder" style="background: var(--graph-boundary-bg); padding: 1.5rem; border-radius: 8px; border: 1px dashed var(--graph-boundary-color);">
-                <p style="color: var(--text-muted); margin: 0;">Reviews functionality coming soon...</p>
-                <!-- TODO: Implement review model and fetching logic -->
-            </div>
+        
+            {% if course.reviews.all %}
+                {% for review in course.reviews.all %}
+                    <div style="background: var(--graph-boundary-bg); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--graph-boundary-color); margin-bottom: 1rem;">
+                        <strong>{{ review.user.username }}</strong>
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">
+                            — {{ review.created_at|date:"M d, Y" }}
+                        </span>
+                        <p style="margin-top: 0.5rem; margin-bottom: 0.5rem;">Rating: {{ review.rating }}/5</p>
+                        <p style="margin: 0;">{{ review.comment }}</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div style="background: var(--graph-boundary-bg); padding: 1.5rem; border-radius: 8px; border: 1px dashed var(--graph-boundary-color);">
+                    <p style="color: var(--text-muted); margin: 0;">No reviews yet.</p>
+                </div>
+            {% endif %}
+            {% if authenticated %}
+                <div style="margin-top: 1rem; display: flex;">
+                    <a href="{% url 'create_review' course.code %}" class="btn btn-primary">
+                        Submit Review
+                    </a>
+                </div>
+            {% endif %}
         </div>
-
     </div>
 </div>
 {% endblock %}
