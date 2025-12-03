@@ -166,10 +166,13 @@ def course_graph_json(request):
     """Returns the JSON data for the Cytoscape graph."""
     major_query = request.GET.get('major')
     profile_major = ''
+    completed_course_codes = set()
+    
     if request.user.is_authenticated:
         profile = getattr(request.user, 'profile', None)
         if profile:
             profile_major = (profile.major or '').strip()
+            completed_course_codes = set(profile.completed_courses.values_list('code', flat=True))
             
     major_source = major_query or profile_major
     
@@ -218,7 +221,8 @@ def course_graph_json(request):
                 "id": course.code,
                 "label": course.code,
                 "name": course.name,
-                "level": _derive_course_level(course.code)
+                "level": _derive_course_level(course.code),
+                "completed": course.code in completed_course_codes
             }
         })
         

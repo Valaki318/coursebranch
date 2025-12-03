@@ -18,38 +18,24 @@
     <div class="graph-legend">
         <h6>Legend</h6>
         <div class="legend-item">
+            <span class="legend-color" style="background-color: var(--graph-node-default);"></span>
+            <small>Default</small>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: var(--graph-node-completed);"></span>
+            <small>Completed</small>
+        </div>
+        <div class="legend-item">
             <span class="legend-color selected"></span>
             <small>Selected</small>
         </div>
         <div class="legend-item">
-            <span class="legend-color prereq"></span>
-            <small>Prereq path</small>
+            <span class="legend-color" style="background-color: var(--graph-node-incomplete);"></span>
+            <small>Needed Prereq</small>
         </div>
         <div class="legend-item">
             <span class="legend-color muted"></span>
             <small>Dimmed</small>
-        </div>
-        <hr>
-        <h6>Levels</h6>
-        <div class="legend-item">
-            <span class="legend-color" style="background-color: var(--graph-level-100);"></span>
-            <small>100-level</small>
-        </div>
-        <div class="legend-item">
-            <span class="legend-color" style="background-color: var(--graph-level-200);"></span>
-            <small>200-level</small>
-        </div>
-        <div class="legend-item">
-            <span class="legend-color" style="background-color: var(--graph-level-300);"></span>
-            <small>300-level</small>
-        </div>
-        <div class="legend-item">
-            <span class="legend-color" style="background-color: var(--graph-level-400);"></span>
-            <small>400-level</small>
-        </div>
-        <div class="legend-item">
-            <span class="legend-color" style="background-color: var(--graph-level-500);"></span>
-            <small>500-level</small>
         </div>
         <small class="legend-note">Click a course to see its path</small>
     </div>
@@ -69,19 +55,13 @@
             nodeText: cssVar('--graph-node-text'),
             nodeBorder: cssVar('--graph-node-border'),
             nodeSelected: cssVar('--graph-node-selected'),
-            nodePrereq: cssVar('--graph-node-prereq'),
-            nodePrereqBorder: cssVar('--graph-node-prereq-border'),
+            nodeCompleted: cssVar('--graph-node-completed'),
+            nodeCompletedBorder: cssVar('--graph-node-completed-border'),
+            nodeIncomplete: cssVar('--graph-node-incomplete'),
+            nodeIncompleteBorder: cssVar('--graph-node-incomplete-border'),
             mutedNode: cssVar('--graph-muted-node'),
             edgeColor: cssVar('--graph-edge-color'),
-            edgeHighlight: cssVar('--graph-edge-highlight'),
-            levelColors: {
-                '100': cssVar('--graph-level-100'),
-                '200': cssVar('--graph-level-200'),
-                '300': cssVar('--graph-level-300'),
-                '400': cssVar('--graph-level-400'),
-                '500': cssVar('--graph-level-500'),
-                'OTHER': cssVar('--graph-node-default')
-            }
+            edgeHighlight: cssVar('--graph-edge-highlight')
         };
         const zoomConfig = {
             min: 0.75,
@@ -118,6 +98,41 @@
                     console.error('Invalid data format:', data);
                     return;
                 }
+                
+                // Add 'completed' class to nodes marked as completed
+                var completedNodeIds = new Set();
+                data.elements.nodes.forEach(function(nodeData) {
+                    if (nodeData.data.completed === true) {
+                        completedNodeIds.add(nodeData.data.id);
+                        if (!nodeData.classes) {
+                            nodeData.classes = [];
+                        }
+                        if (typeof nodeData.classes === 'string') {
+                            nodeData.classes = nodeData.classes ? nodeData.classes.split(' ') : [];
+                        }
+                        if (nodeData.classes.indexOf('completed') === -1) {
+                            nodeData.classes.push('completed');
+                        }
+                        nodeData.classes = nodeData.classes.join(' ');
+                    }
+                });
+                
+                // Add 'completed-edge' class to edges targeting completed nodes
+                data.elements.edges.forEach(function(edgeData) {
+                    if (completedNodeIds.has(edgeData.data.target)) {
+                        if (!edgeData.classes) {
+                            edgeData.classes = [];
+                        }
+                        if (typeof edgeData.classes === 'string') {
+                            edgeData.classes = edgeData.classes ? edgeData.classes.split(' ') : [];
+                        }
+                        if (edgeData.classes.indexOf('completed-edge') === -1) {
+                            edgeData.classes.push('completed-edge');
+                        }
+                        edgeData.classes = edgeData.classes.join(' ');
+                    }
+                });
+                
                 initGraph(data.elements);
             })
             .catch(err => {
@@ -141,7 +156,7 @@
                                 'label': 'data(label)',
                                 'text-valign': 'center',
                                 'text-halign': 'center',
-                                'background-color': 'mapData(level, 100, 500, ' + graphColors.levelColors['100'] + ', ' + graphColors.levelColors['500'] + ')',
+                                'background-color': graphColors.nodeDefault,
                                 'color': graphColors.nodeText,
                                 'width': 60,
                                 'height': 60,
@@ -150,32 +165,16 @@
                                 'text-wrap': 'wrap',
                                 'text-max-width': '50px',
                                 'border-width': 2,
-                                'border-color': 'mapData(level, 100, 500, ' + graphColors.levelColors['100'] + ', ' + graphColors.levelColors['500'] + ')'
+                                'border-color': graphColors.nodeBorder
                             }
                         },
                         {
-                            selector: 'node[level = "100"]',
-                            style: { 'background-color': graphColors.levelColors['100'], 'border-color': graphColors.levelColors['100'] }
-                        },
-                        {
-                            selector: 'node[level = "200"]',
-                            style: { 'background-color': graphColors.levelColors['200'], 'border-color': graphColors.levelColors['200'] }
-                        },
-                        {
-                            selector: 'node[level = "300"]',
-                            style: { 'background-color': graphColors.levelColors['300'], 'border-color': graphColors.levelColors['300'] }
-                        },
-                        {
-                            selector: 'node[level = "400"]',
-                            style: { 'background-color': graphColors.levelColors['400'], 'border-color': graphColors.levelColors['400'] }
-                        },
-                        {
-                            selector: 'node[level = "500"]',
-                            style: { 'background-color': graphColors.levelColors['500'], 'border-color': graphColors.levelColors['500'] }
-                        },
-                        {
-                            selector: 'node[level = "OTHER"]',
-                            style: { 'background-color': graphColors.levelColors['OTHER'], 'border-color': graphColors.levelColors['OTHER'] }
+                            selector: 'node.completed',
+                            style: {
+                                'background-color': graphColors.nodeCompleted,
+                                'border-color': graphColors.nodeCompletedBorder,
+                                'border-width': 3
+                            }
                         },
                         {
                             selector: 'edge',
@@ -187,7 +186,17 @@
                                 'curve-style': 'taxi',
                                 'taxi-direction': 'horizontal',
                                 'taxi-turn-min-distance': 40,
-                                'opacity': 0.85
+                                'opacity': 0.85,
+                                'z-index': 1
+                            }
+                        },
+                        {
+                            selector: 'edge.completed-edge',
+                            style: {
+                                'line-color': graphColors.nodeCompleted,
+                                'target-arrow-color': graphColors.nodeCompleted,
+                                'width': 3,
+                                'z-index': 10
                             }
                         },
                         {
@@ -195,36 +204,67 @@
                             style: {
                                 'width': 3,
                                 'line-color': graphColors.edgeHighlight,
-                                'target-arrow-color': graphColors.edgeHighlight
+                                'target-arrow-color': graphColors.edgeHighlight,
+                                'z-index': 15
                             }
                         },
                         {
                             selector: 'node.selected',
                             style: {
-                                'border-width': 5,
-                                'border-color': graphColors.nodeSelected
+                                'background-color': graphColors.nodeSelected,
+                                'border-width': 3,
+                                'border-color': '#ffffff',
+                                'border-style': 'solid'
                             }
                         },
                         {
-                            selector: '.prereq',
+                            selector: 'node.selected.completed',
                             style: {
-                                'background-color': graphColors.nodePrereq,
-                                'border-color': graphColors.nodePrereqBorder
+                                'background-color': graphColors.nodeSelected,
+                                'border-width': 1,
+                                'border-color': '#ffffff',
+                                'border-style': 'solid'
                             }
                         },
                         {
-                            selector: '.muted',
+                            selector: '.prereq-incomplete',
+                            style: {
+                                'background-color': graphColors.nodeIncomplete,
+                                'border-color': graphColors.nodeIncompleteBorder,
+                                'border-width': 3
+                            }
+                        },
+                        {
+                            selector: 'node.muted',
                             style: {
                                 'background-color': graphColors.mutedNode,
                                 'border-color': graphColors.mutedNode,
-                                'opacity': 0.15,
-                                'text-opacity': 0.15
+                                'opacity': 0.4,
+                                'text-opacity': 0.6
+                            }
+                        },
+                        {
+                            selector: 'node.muted.completed',
+                            style: {
+                                'background-color': graphColors.nodeCompleted,
+                                'border-color': graphColors.nodeCompletedBorder,
+                                'opacity': 0.4,
+                                'text-opacity': 0.6
                             }
                         },
                         {
                             selector: 'edge.muted',
                             style: {
-                                'opacity': 0.05
+                                'opacity': 0.2
+                            }
+                        },
+                        {
+                            selector: 'edge.muted.completed-edge',
+                            style: {
+                                'line-color': graphColors.nodeCompleted,
+                                'target-arrow-color': graphColors.nodeCompleted,
+                                'opacity': 0.3,
+                                'z-index': 5
                             }
                         }
                     ],
@@ -372,13 +412,20 @@
                 cy.on('tap', 'node', function (evt) {
                     var node = evt.target;
 
-                    cy.elements().removeClass('selected prereq muted highlight-edge');
+                    cy.elements().removeClass('selected prereq-incomplete muted highlight-edge');
 
                     var prereqNodes = node.predecessors('node');
                     var prereqEdges = node.predecessors('edge');
 
                     node.addClass('selected');
-                    prereqNodes.addClass('prereq');
+                    
+                    // Mark incomplete prereqs as yellow (completed ones stay green via .completed class)
+                    prereqNodes.forEach(function(prereqNode) {
+                        if (!prereqNode.hasClass('completed')) {
+                            prereqNode.addClass('prereq-incomplete');
+                        }
+                    });
+                    
                     prereqEdges.addClass('highlight-edge');
 
                     cy.elements()
@@ -391,7 +438,7 @@
                 // Background click to reset
                 cy.on('tap', function (evt) {
                     if (evt.target === cy) {
-                        cy.elements().removeClass('selected prereq muted highlight-edge');
+                        cy.elements().removeClass('selected prereq-incomplete muted highlight-edge');
                     }
                 });
 
