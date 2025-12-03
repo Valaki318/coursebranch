@@ -7,6 +7,7 @@ class Profile(models.Model):
     major = models.CharField(max_length=100, blank=True)
     college = models.CharField(max_length=100, blank=True)
     graduation_year = models.IntegerField(null=True, blank=True)
+    completed_courses = models.ManyToManyField("catalog.Course", blank=True)
     
     def __str__(self):
         return f"{self.user.username}'s Profile"

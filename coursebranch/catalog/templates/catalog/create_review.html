@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Review {{ course.code }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto;">
+
+    <a href="{% url 'course_detail' course.code %}" class="btn btn-outline" style="margin-bottom: 2rem; display: inline-block;">
+        &larr; Back to {{ course.code }}
+    </a>
+
+    <h1 style="margin-bottom: 1rem;">Review for {{ course.code }} — {{ course.name }}</h1>
+
+    <form method="POST" style="margin-top: 2rem;">
+        {% csrf_token %}
+
+        <label style="font-weight: bold;">Rating</label>
+        <div style="display: flex; gap: 0.5rem; font-size: 2rem; cursor: pointer; margin: 0.5rem 0;"
+             id="star-container">
+            <span data-value="1">&#9733;</span>
+            <span data-value="2">&#9733;</span>
+            <span data-value="3">&#9733;</span>
+            <span data-value="4">&#9733;</span>
+            <span data-value="5">&#9733;</span>
+        </div>
+
+        <input type="hidden" name="rating" id="rating-input" required>
+
+        <label for="comment" style="font-weight: bold;">Comment</label>
+        <textarea name="comment" id="comment" rows="4"
+                  style="width: 100%; padding: 0.75rem; border-radius: 6px; margin-top: 0.5rem;"
+                  placeholder="Write your review..." required></textarea>
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem;">
+            Submit Review
+        </button>
+    </form>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const stars = document.querySelectorAll("#star-container span");
+    const ratingInput = document.getElementById("rating-input");
+
+    stars.forEach(star => {
+        star.addEventListener("click", () => {
+            const value = star.getAttribute("data-value");
+            ratingInput.value = value;
+
+            stars.forEach(s => {
+                if (s.getAttribute("data-value") <= value) {
+                    s.style.color = "gold";
+                } else {
+                    s.style.color = "gray";
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

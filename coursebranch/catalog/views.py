@@ -1,19 +1,30 @@
 import re
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.db.models import Q
-from .models import Course
+from .models import Course, Review
+from django.contrib.auth.decorators import login_required
 
 def course_detail_view(request, code):
     course = get_object_or_404(Course, code=code)
     filter_type = request.GET.get('filter', 'all')
     search_query = request.GET.get('q', '')
+    authenticated = request.user.is_authenticated and hasattr(request.user, 'profile')
+    user_courses = None
+    if authenticated:
+        prof = request.user.profile
+        user_courses = prof.completed_courses.all()
+
+    completed_codes = [cs.code for cs in user_courses] if user_courses else []
+    
     return render(request, "catalog/course_detail.html", {
         "course": course,
         "prereqs": course.prerequisites.all(),
         "postreqs": Course.objects.filter(prerequisites=course),
         "filter_type": filter_type,
-        "search_query": search_query
+        "search_query": search_query,
+        "authenticated": authenticated,
+        "completed_codes": completed_codes,
     })
 
 def _get_major_query(major_source):
@@ -85,9 +96,14 @@ def catalog_view(request):
     # Get user's major if logged in
     user_college = None
     user_major = None
-    if request.user.is_authenticated and hasattr(request.user, 'profile'):
-        user_college = request.user.profile.college
-        user_major = request.user.profile.major
+    user_courses = None
+
+    authenticated = request.user.is_authenticated and hasattr(request.user, 'profile')
+    if authenticated:
+        prof = request.user.profile
+        user_college = prof.college
+        user_major = prof.major
+        user_courses = prof.completed_courses.all()
     
     courses_qs = Course.objects.all()
 
@@ -124,7 +140,9 @@ def catalog_view(request):
         "search_query": search_query,
         "user_college": user_college,
         "user_major": user_major,
-        "has_major": bool(user_major)
+        "has_major": bool(user_major),
+        "authenticated": authenticated,
+        "user_courses": user_courses
     })
 
 def course_tree_view(request):
@@ -215,3 +233,35 @@ def course_graph_json(request):
                 })
                 
     return JsonResponse({"elements": {"nodes": nodes, "edges": edges}})
+
+def add_course(request):
+    if request.method == "POST" and request.user.is_authenticated:
+        course = Course.objects.get(code=request.POST.get("code"))
+        prof = request.user.profile
+        prof.completed_courses.add(course)
+        return JsonResponse({"status": "ok"})
+
+def remove_course(request):
+    if request.method == "POST" and request.user.is_authenticated:
+        course = Course.objects.get(code=request.POST.get("code"))
+        prof = request.user.profile
+        prof.completed_courses.remove(course)
+        return JsonResponse({"status": "ok"})
+
+@login_required
+def create_review(request, code):
+    course = get_object_or_404(Course, code=code)
+
+    if request.method == "POST":
+        Review.objects.create(
+            course=course,
+            user=request.user,
+            rating=request.POST["rating"],
+            comment=request.POST["comment"]
+        )
+        return redirect("course_detail", code=course.code)
+
+    return render(request, "catalog/create_review.html", {"course": course})
+
+
+

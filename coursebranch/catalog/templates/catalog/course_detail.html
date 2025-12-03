@@ -8,7 +8,23 @@
     <a href="{% url 'catalog' %}?filter={{ filter_type }}&q={{ search_query|urlencode }}" class="btn btn-outline" style="margin-bottom: 2rem; display: inline-block;">&larr; Back to Course Catalog</a>
     
     <div class="feature-card">
-        <h1 style="margin-bottom: 1rem; color: var(--text-color);">{{ course.code }} — {{ course.name }}</h1>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1 style="margin-bottom: 1rem; color: var(--text-color);">{{ course.code }} — {{ course.name }}</h1>
+            {% if authenticated %}
+                <button class="btn btn-primary"
+                    onclick="{% if course.code in completed_codes %}
+                                    removeCourse('{{ course.code }}')
+                            {% else %}
+                                    addCourse('{{ course.code }}')
+                            {% endif %}">
+                    {% if course.code in completed_codes %}
+                        Mark as incomplete
+                    {% else %}
+                        Mark as completed
+                    {% endif %}
+                </button>
+            {% endif %}
+        </div>
         <p style="font-size: 1.1rem; margin-bottom: 2rem; color: var(--text-muted);">{{ course.description }}</p>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
@@ -48,15 +64,66 @@
             </div>
         </div>
 
-        <!-- Reviews Section Placeholder -->
         <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--graph-node-border);">
             <h3 style="margin-bottom: 1rem;">Reviews</h3>
-            <div class="review-placeholder" style="background: var(--graph-boundary-bg); padding: 1.5rem; border-radius: 8px; border: 1px dashed var(--graph-boundary-color);">
-                <p style="color: var(--text-muted); margin: 0;">Reviews functionality coming soon...</p>
-                <!-- TODO: Implement review model and fetching logic -->
-            </div>
+        
+            {% if course.reviews.all %}
+                {% for review in course.reviews.all %}
+                    <div style="background: var(--graph-boundary-bg); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--graph-boundary-color); margin-bottom: 1rem;">
+                        <strong>{{ review.user.username }}</strong>
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">
+                            — {{ review.created_at|date:"M d, Y" }}
+                        </span>
+                        <p style="margin-top: 0.5rem; margin-bottom: 0.5rem;">Rating: {{ review.rating }}/5</p>
+                        <p style="margin: 0;">{{ review.comment }}</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div style="background: var(--graph-boundary-bg); padding: 1.5rem; border-radius: 8px; border: 1px dashed var(--graph-boundary-color);">
+                    <p style="color: var(--text-muted); margin: 0;">No reviews yet.</p>
+                </div>
+            {% endif %}
+            {% if authenticated %}
+                <div style="margin-top: 1rem; display: flex;">
+                    <a href="{% url 'create_review' course.code %}" class="btn btn-primary">
+                        Submit Review
+                    </a>
+                </div>
+            {% endif %}
         </div>
-
     </div>
 </div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    function addCourse(courseCode) {
+        modCourse(courseCode, true);
+    }
+
+    function removeCourse(courseCode) {
+        modCourse(courseCode, false);
+    }
+
+    function modCourse(courseCode, add) {
+
+        const formData = new FormData();
+        formData.append("code", courseCode);  
+        let url = add ? "{% url 'add_course' %}" : "{% url 'remove_course' %}";
+        fetch(url, {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}"
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status != "ok") {
+                alert("An error occured");
+            }
+            location.reload(true);
+        });
+        
+    }
+</script>
 {% endblock %}

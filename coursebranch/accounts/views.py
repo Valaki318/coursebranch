@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.conf import settings
 from .models import Profile
+from catalog.models import Course
 import json
 import os
 
@@ -97,3 +98,20 @@ def profile_view(request):
         'colleges_data': json.dumps(colleges_data), # Pass as JSON for JS
         'college_list': college_list
     })
+
+@login_required
+def courses_view(request):
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+    filter_type = request.GET.get('filter', 'all')
+    search_query = request.GET.get('q', '').strip()
+    courses_qs = []
+    if request.user.is_authenticated and hasattr(request.user, 'profile'):
+        prof = request.user.profile
+        courses_qs = prof.completed_courses.all()
+
+    return render(request, "accounts/completed_courses.html", {
+        "courses": courses_qs, 
+        "filter_type": filter_type,
+        "search_query": search_query,
+    })
+

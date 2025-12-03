@@ -54,6 +54,18 @@
     font-weight: 600;
 }
 
+.course-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 3;
+}
+
+.course-header h3, 
+.course-header button {
+    margin: 0;           
+}
+
 .course-meta {
     margin-top: 1rem;
     display: flex;

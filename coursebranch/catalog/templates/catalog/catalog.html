@@ -46,8 +46,13 @@
         {% for course in courses %}
         <!-- Pass filter_type and search_query to detail view -->
         <div class="feature-card" onclick="window.location.href='{% url 'course_detail' course.code %}?filter={{ filter_type }}&q={{ search_query|urlencode }}'" style="cursor: pointer;">
-            <h3>{{ course.code }}</h3>
-            <h4>{{ course.name }}</h4>
+            <div class="course-header">
+                <h3>{{ course.code }}</h3>
+                {% if course in user_courses %}
+                    <span class="badge">Completed</span>
+                {% endif %}
+            </div>
+            <h4>{{ course.name }}</h4> 
             <p>{{ course.description|truncatewords:20 }}</p>
             <div class="course-meta">
                 <span class="badge">{{ course.credits }} Credits</span>
