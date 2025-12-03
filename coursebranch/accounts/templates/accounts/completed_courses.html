@@ -5,6 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/catalog.css' %}">
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -14,7 +15,7 @@
         <h1>Completed Courses</h1>
     </div>
 
-    <div class="features-grid">
+    <div class="courses-grid-4col">
         {% for course in courses %}
         <!-- Pass filter_type and search_query to detail view -->
         <div class="feature-card" onclick="window.location.href='{% url 'course_detail' course.code %}?filter={{ filter_type }}&q={{ search_query|urlencode }}'" style="cursor: pointer;">
