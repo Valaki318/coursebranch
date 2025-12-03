@@ -71,26 +71,99 @@ def process_course_page(page_url):
         courses = []
         
         for course_feed in course_feed_elements:
-            # Find all <li> elements within this course-feed
-            li_elements = course_feed.find_all('li')
+            # Find all <a> links within this course-feed
+            links = course_feed.find_all('a', href=True)
             
-            for li in li_elements:
-                # Get all text content from this <li>
-                full_text = li.get_text(strip=True)
+            for link in links:
+                # Skip links that are inside "cf-hub-ind" div class
+                if link.find_parent(class_="cf-hub-ind"):
+                    continue
+                    
+                href = link['href']
+                print(f"Found link: {href}")
+                
+                # Fetch the linked page to get course description
+                try:
+                    course_response = requests.get(f"https://www.bu.edu{href}")
+                    if course_response.status_code == 200:
+                        course_soup = BeautifulSoup(course_response.text, 'html.parser')
+                        course_content_div = course_soup.find('div', id='course-content')
+                        if course_content_div:
+                            p_tag = course_content_div.find('p')
+                            description = p_tag.get_text(strip=True) if p_tag else ""
+                        else:
+                            description = ""
+                        
+                        # Extract credits from info-box
+                        credits = ""
+                        info_box = course_soup.find('div', id='info-box', class_='sidebar')
+                        if info_box:
+                            dt_tags = info_box.find_all('dt')
+                            dd_tags = info_box.find_all('dd')
+                            for dt, dd in zip(dt_tags, dd_tags):
+                                if 'Units:' in dt.get_text(strip=True):
+                                    credits = dd.get_text(strip=True)
+                                    break
+                        
+                        # Extract hub credits
+                        hub_credit = []
+                        hub_offerings = course_soup.find('ul', class_='cf-hub-offerings')
+                        if hub_offerings:
+                            li_tags = hub_offerings.find_all('li')
+                            for li in li_tags:
+                                hub_credit.append(li.get_text(strip=True))
+                        
+                        # Extract instructors
+                        instructors = []
+                        # Check all tables in cf-course elements
+                        cf_courses = course_soup.find_all('cf-course')
+                        for cf_course in cf_courses:
+                            tables = cf_course.find_all('table')
+                            for table in tables:
+                                rows = table.find_all('tr')
+                                for row in rows:
+                                    cells = row.find_all('td')
+                                    if len(cells) >= 2:
+                                        instructor = cells[1].get_text(strip=True)
+                                        if instructor and instructor not in instructors:
+                                            instructors.append(instructor)
+                        
+                        # Also check any tables outside cf-course elements
+                        all_tables = course_soup.find_all('table')
+                        for table in all_tables:
+                            # Skip if already processed in cf-course
+                            if any(table in cf.find_all('table') for cf in cf_courses):
+                                continue
+                            rows = table.find_all('tr')
+                            for row in rows:
+                                cells = row.find_all('td')
+                                if len(cells) >= 2:
+                                    instructor = cells[1].get_text(strip=True)
+                                    if instructor and instructor not in instructors:
+                                        instructors.append(instructor)
+                    else:
+                        description = ""
+                        credits = ""
+                        hub_credit = []
+                        instructors = []
+                except Exception:
+                    description = ""
+                    credits = ""
+                    hub_credit = []
+                    instructors = []
+                
+                # Get all text content from this link
+                full_text = link.get_text(strip=True)
                 
                 # Try to find title (usually the first line or in a strong/bold element)
                 title = ""
-                strong_tag = li.find('strong')
+                strong_tag = link.find('strong')
                 if strong_tag:
                     title = strong_tag.get_text(strip=True)
                 else:
-                    # If no strong tag, use first line as title
-                    lines = full_text.split('\n')
-                    title = lines[0].strip() if lines else ""
+                    # Use link text as title
+                    title = full_text
                 
-                # Description is the remaining text after title
-                description = full_text
-
                 # Parse title to separate course code and name
                 course_code = ""
                 course_name = ""
@@ -101,18 +174,29 @@ def process_course_page(page_url):
                 else:
                     course_code = title if title else ""
                 
+                # Split college (first 3 characters) from course code
+                college = ""
+                if course_code and len(course_code) >= 3:
+                    college = course_code[:3]
+                    course_code = course_code[3:].strip()
+                
                 # Extract required courses using Scraper
                 try:
                     required_courses = scrape_prerequisites(description)
                 except Exception:
                     required_courses = []
                 
-                # Create course object for each <li>
+                # Create course object for each link
                 course_obj = {
+                    'college': college,
                     'course_code': course_code,
                     'course_name': course_name,
                     'description': description,
-                    'required_courses': required_courses
+                    'required_courses': required_courses,
+                    'credits': credits,
+                    'hub_credit': hub_credit,
+                    'instructors': instructors,
+                    'link': f"https://www.bu.edu{href}"
                 }
                 courses.append(course_obj)
         return courses
@@ -121,7 +205,7 @@ def process_course_page(page_url):
         return []
 
 # Function to create course objects from max_paginated_urls
-def create_college_course(max_paginated_urls):
+def create_college_course(max_paginated_urls, limit=None):
     all_courses = []
     for max_url in max_paginated_urls:
         # Extract base and max_value
@@ -132,15 +216,17 @@ def create_college_course(max_paginated_urls):
         max_value = int(max_value)
         
         # Visit each page from max down to 0
-        for n in range(max_value, -20, -20):
+        for n in range(1, max_value + 1, 1):
+            if limit and len(all_courses) >= limit:
+                return all_courses
             page_url = f"{base_url}{n}/"
             courses = process_course_page(page_url)
             all_courses.extend(courses)
-    
+            print(f"Processed {page_url}, found {len(courses)} courses.")
     return all_courses
 
 # Create all course objects and filter out those without course names
-courses = create_college_course(max_paginated_urls)
+courses = create_college_course(max_paginated_urls, limit=None)
 print(f"Total courses collected: {len(courses)}")
 
 # Filter out courses without course names
@@ -160,15 +246,4 @@ if filtered_courses:
     print(filtered_courses[0])
 else:
     print("No course objects found.")
-
-
-
-
-
-
-
-
-
-
-
 
