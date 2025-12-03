@@ -115,3 +115,45 @@ def courses_view(request):
         "search_query": search_query,
     })
 
+@login_required
+def add_completed_courses_view(request):
+    from django.db.models import Q
+    
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+    filter_type = request.GET.get('filter', 'all')
+    search_query = request.GET.get('q', '').strip()
+    
+    completed_courses = profile.completed_courses.all()
+    completed_codes = set(c.code for c in completed_courses)
+    
+    available_courses = Course.objects.exclude(code__in=completed_codes)
+    
+    if search_query:
+        search_tokens = search_query.split()
+        search_q = Q()
+        for token in search_tokens:
+            search_q &= (Q(code__icontains=token) | Q(name__icontains=token))
+        available_courses = available_courses.filter(search_q)
+    
+    if filter_type == 'major' and profile.major:
+        from catalog.views import _get_major_query
+        query = _get_major_query(profile.major)
+        if profile.college:
+            query &= Q(college__name__icontains=profile.college)
+        available_courses = available_courses.filter(query)
+    elif filter_type == 'major' and not profile.major:
+        available_courses = Course.objects.none()
+    
+    limit = 100
+    available_courses = available_courses[:limit]
+
+    return render(request, "accounts/add_completed_courses.html", {
+        "completed_courses": completed_courses,
+        "available_courses": available_courses,
+        "filter_type": filter_type,
+        "search_query": search_query,
+        "user_college": profile.college,
+        "user_major": profile.major,
+        "has_major": bool(profile.major),
+    })
+

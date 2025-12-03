@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Completed Courses - CourseBranch{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/catalog.css' %}">
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="catalog-container">
+    <a href="{% url 'completed_courses' %}" class="btn btn-outline" style="margin-bottom: 2rem; display: inline-block;">&larr; Back to Completed Courses</a>
+    <div class="catalog-header">
+        <h1>Edit Completed Courses</h1>
+        <p>Manage your completed courses by adding or removing them from your list.</p>
+    </div>
+
+    <div class="two-column-layout">
+        <!-- Left Column: Completed Courses -->
+        <div>
+            <div class="column-header">
+                <h2>My Completed Courses</h2>
+                <div class="count" id="completed-count">{{ completed_courses.count }} course{{ completed_courses.count|pluralize }}</div>
+            </div>
+            <div class="courses-column" id="completed-column">
+                {% for course in completed_courses %}
+                <div class="course-item" data-course-code="{{ course.code }}">
+                    <div class="course-item-header">
+                        <h3>{{ course.code }}</h3>
+                        <button class="action-btn remove-btn" onclick="removeCourse('{{ course.code }}')">Remove</button>
+                    </div>
+                    <h4>{{ course.name }}</h4>
+                    <p>{{ course.description|truncatewords:20 }}</p>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted);">
+                        <span>{{ course.credits }} Credits</span>
+                        <span>{{ course.instructor }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <p>No completed courses yet. Add courses from the right panel.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Right Column: Available Courses -->
+        <div>
+            <div class="column-header">
+                <h2>Add Courses</h2>
+            </div>
+
+            <!-- Search Bar and Filter -->
+            <div style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <form method="get" action="" style="display: flex; gap: 0.5rem; flex: 1;">
+                    {% if filter_type != 'all' %}
+                    <input type="hidden" name="filter" value="{{ filter_type }}">
+                    {% endif %}
+                    <input type="text" name="q" value="{{ search_query }}" placeholder="Search courses..." 
+                           style="flex: 1; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid var(--border-color); background-color: var(--background-color); color: var(--text-color);">
+                    <button type="submit" class="btn btn-outline">Search</button>
+                </form>
+            </div>
+
+            <div style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <label for="course-filter" style="font-weight: 600;">Show:</label>
+                <select id="course-filter" onchange="window.location.href='?filter=' + this.value + '&q={{ search_query|urlencode }}'" 
+                        style="padding: 0.5rem; border-radius: 0.5rem; border: 1px solid var(--border-color); background-color: var(--background-color); color: var(--text-color);">
+                    <option value="all" {% if filter_type == 'all' %}selected{% endif %}>All Courses</option>
+                    <option value="major" {% if filter_type == 'major' %}selected{% endif %} {% if not has_major %}disabled{% endif %}>My Major Only{% if not has_major %} (Set your major in profile){% endif %}</option>
+                </select>
+                {% if filter_type == 'major' and has_major %}
+                <span class="filter-badge">{{ user_college }} {{ user_major }}</span>
+                {% endif %}
+            </div>
+
+            <div class="courses-column" id="available-column">
+                {% for course in available_courses %}
+                <div class="course-item" data-course-code="{{ course.code }}">
+                    <div class="course-item-header">
+                        <h3>{{ course.code }}</h3>
+                        <button class="action-btn add-btn" onclick="addCourse('{{ course.code }}')">Add</button>
+                    </div>
+                    <h4>{{ course.name }}</h4>
+                    <p>{{ course.description|truncatewords:20 }}</p>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted);">
+                        <span>{{ course.credits }} Credits</span>
+                        <span>{{ course.instructor }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <p>No courses found. Try adjusting your search or filters.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function addCourse(courseCode) {
+    const csrftoken = getCookie('csrftoken');
+    
+    fetch('/catalog/add_course/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': csrftoken
+        },
+        body: `code=${encodeURIComponent(courseCode)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            window.location.reload();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function removeCourse(courseCode) {
+    const csrftoken = getCookie('csrftoken');
+    
+    fetch('/catalog/remove_course/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': csrftoken
+        },
+        body: `code=${encodeURIComponent(courseCode)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            window.location.reload();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
+{% endblock %}
+
