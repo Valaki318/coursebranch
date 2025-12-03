@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Welcome to CourseBranch{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/catalog.css' %}">
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="catalog-container">
+    <div class="catalog-header">
+        <h1>Welcome to CourseBranch!</h1>
+        <p>Let's set up your profile to personalize your experience.</p>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="success-message">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Step 1: Major Selection -->
+    <div class="feature-card" style="margin-bottom: 2rem;">
+        <h2 style="margin-bottom: 1.5rem;">Step 1: Set Your Major</h2>
+        
+        <form method="post" id="major-form" class="profile-form">
+            {% csrf_token %}
+
+            <div class="form-grid-2col">
+                <div class="form-field">
+                    <label for="college">College</label>
+                    <select id="college" name="college">
+                        <option value="">-- Select College --</option>
+                        {% for col in college_list %}
+                        <option value="{{ col }}" {% if profile.college == col %}selected{% endif %}>{{ col }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label for="major">Major (Dept)</label>
+                    <select id="major" name="major">
+                        <option value="">-- Select Major --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label for="graduation_year">Graduation Year (Optional)</label>
+                <input type="number" id="graduation_year" name="graduation_year"
+                    value="{{ profile.graduation_year|default:'' }}" placeholder="e.g., 2026">
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <button type="submit" class="btn btn-primary">Save Profile Info</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Step 2: Completed Courses -->
+    <div class="feature-card">
+        <h2 style="margin-bottom: 1rem;">Step 2: Add Your Completed Courses (Optional)</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Help us track your progress by adding courses you've already completed.</p>
+
+        <div class="two-column-layout">
+            <!-- Left Column: Completed Courses -->
+            <div>
+                <div class="column-header">
+                    <h3>Completed Courses</h3>
+                    <div class="count" id="completed-count">{{ completed_courses.count }} course{{ completed_courses.count|pluralize }}</div>
+                </div>
+                <div class="courses-column" id="completed-column">
+                    {% for course in completed_courses %}
+                    <div class="course-item" data-course-code="{{ course.code }}">
+                        <div class="course-item-header">
+                            <h4>{{ course.code }}</h4>
+                            <button class="action-btn remove-btn" onclick="removeCourse('{{ course.code }}')">Remove</button>
+                        </div>
+                        <h5>{{ course.name }}</h5>
+                        <p>{{ course.description|truncatewords:20 }}</p>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted);">
+                            <span>{{ course.credits }} Credits</span>
+                            <span>{{ course.instructor }}</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                        <p>No completed courses yet. Add courses from the right panel.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Right Column: Available Courses -->
+            <div>
+                <div class="column-header">
+                    <h3>Add Courses</h3>
+                </div>
+
+                <!-- Search Bar and Filter -->
+                <div style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <form method="get" action="" style="display: flex; gap: 0.5rem; flex: 1;">
+                        {% if filter_type != 'all' %}
+                        <input type="hidden" name="filter" value="{{ filter_type }}">
+                        {% endif %}
+                        <input type="text" name="q" value="{{ search_query }}" placeholder="Search courses..." 
+                               style="flex: 1; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid var(--border-color); background-color: var(--background-color); color: var(--text-color);">
+                        <button type="submit" class="btn btn-outline">Search</button>
+                    </form>
+                </div>
+
+                <div style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <label for="course-filter" style="font-weight: 600;">Show:</label>
+                    <select id="course-filter" onchange="window.location.href='?filter=' + this.value + '&q={{ search_query|urlencode }}'" 
+                            style="padding: 0.5rem; border-radius: 0.5rem; border: 1px solid var(--border-color); background-color: var(--background-color); color: var(--text-color);">
+                        <option value="all" {% if filter_type == 'all' %}selected{% endif %}>All Courses</option>
+                        <option value="major" {% if filter_type == 'major' %}selected{% endif %} {% if not has_major %}disabled{% endif %}>My Major Only{% if not has_major %} (Set your major first){% endif %}</option>
+                    </select>
+                    {% if filter_type == 'major' and has_major %}
+                    <span class="filter-badge">{{ user_college }} {{ user_major }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="courses-column" id="available-column">
+                    {% for course in available_courses %}
+                    <div class="course-item" data-course-code="{{ course.code }}">
+                        <div class="course-item-header">
+                            <h4>{{ course.code }}</h4>
+                            <button class="action-btn add-btn" onclick="addCourse('{{ course.code }}')">Add</button>
+                        </div>
+                        <h5>{{ course.name }}</h5>
+                        <p>{{ course.description|truncatewords:20 }}</p>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted);">
+                            <span>{{ course.credits }} Credits</span>
+                            <span>{{ course.instructor }}</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                        <p>No courses found. Try adjusting your search or filters.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
+            <a href="{% url 'home' %}" class="btn btn-primary btn-lg">Complete Setup & Continue to CourseBranch</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const collegesData = JSON.parse('{{ colleges_data|escapejs }}');
+        const collegeSelect = document.getElementById('college');
+        const majorSelect = document.getElementById('major');
+        const currentMajor = "{{ profile.major|escapejs }}";
+
+        function updateMajors() {
+            const selectedCollege = collegeSelect.value;
+            majorSelect.innerHTML = '<option value="">-- Select Major --</option>';
+
+            if (selectedCollege && collegesData[selectedCollege]) {
+                collegesData[selectedCollege].forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept;
+                    option.textContent = dept;
+                    if (dept === currentMajor) {
+                        option.selected = true;
+                    }
+                    majorSelect.appendChild(option);
+                });
+            }
+        }
+
+        collegeSelect.addEventListener('change', updateMajors);
+
+        if (collegeSelect.value) {
+            updateMajors();
+        }
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function addCourse(courseCode) {
+        const csrftoken = getCookie('csrftoken');
+        
+        fetch('/catalog/add_course/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrftoken
+            },
+            body: `code=${encodeURIComponent(courseCode)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'ok') {
+                window.location.reload();
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function removeCourse(courseCode) {
+        const csrftoken = getCookie('csrftoken');
+        
+        fetch('/catalog/remove_course/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrftoken
+            },
+            body: `code=${encodeURIComponent(courseCode)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'ok') {
+                window.location.reload();
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
+
+<style>
+.course-item h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-color);
+}
+
+.course-item h5 {
+    margin: 0.25rem 0 0.5rem 0;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+</style>
+{% endblock %}
+

@@ -46,8 +46,10 @@ def signup_view(request):
             user = form.save()
             Profile.objects.get_or_create(user=user)
             login(request, user)
-            return redirect('home')
+            messages.success(request, f"Welcome to CourseBranch, {user.username}!")
+            return redirect('onboarding')
     else:
+        form = SignUpForm()
     return render(request, 'accounts/signup.html', {'form': form})
 
 
@@ -198,4 +200,62 @@ def change_password_view(request):
         form = PasswordChangeForm(request.user)
     
     return render(request, 'accounts/change_password.html', {'form': form})
+
+@login_required
+def onboarding_view(request):
+    from django.db.models import Q
+    
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+    colleges_data = get_colleges_and_majors()
+    college_list = sorted(colleges_data.keys())
+    
+    if request.method == 'POST':
+        profile.college = request.POST.get('college', '')
+        profile.major = request.POST.get('major', '')
+        year = request.POST.get('graduation_year')
+        profile.graduation_year = int(year) if year else None
+        profile.save()
+        
+        messages.success(request, "Profile saved! You can now add completed courses below, or continue to CourseBranch.")
+        return redirect('onboarding')
+    
+    filter_type = request.GET.get('filter', 'all')
+    search_query = request.GET.get('q', '').strip()
+    
+    completed_courses = profile.completed_courses.all()
+    completed_codes = set(c.code for c in completed_courses)
+    
+    available_courses = Course.objects.exclude(code__in=completed_codes)
+    
+    if search_query:
+        search_tokens = search_query.split()
+        search_q = Q()
+        for token in search_tokens:
+            search_q &= (Q(code__icontains=token) | Q(name__icontains=token))
+        available_courses = available_courses.filter(search_q)
+    
+    if filter_type == 'major' and profile.major:
+        from catalog.views import _get_major_query
+        query = _get_major_query(profile.major)
+        if profile.college:
+            query &= Q(college__name__icontains=profile.college)
+        available_courses = available_courses.filter(query)
+    elif filter_type == 'major' and not profile.major:
+        available_courses = Course.objects.none()
+    
+    limit = 100
+    available_courses = available_courses[:limit]
+
+    return render(request, "accounts/onboarding.html", {
+        "profile": profile,
+        "colleges_data": json.dumps(colleges_data),
+        "college_list": college_list,
+        "completed_courses": completed_courses,
+        "available_courses": available_courses,
+        "filter_type": filter_type,
+        "search_query": search_query,
+        "user_college": profile.college,
+        "user_major": profile.major,
+        "has_major": bool(profile.major),
+    })
 
