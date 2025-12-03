@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, update_session_auth_hash
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.conf import settings
 from .models import Profile
+from .forms import SignUpForm
 from catalog.models import Course
 import json
 import os
@@ -40,14 +41,13 @@ def get_colleges_and_majors():
 
 def signup_view(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
             Profile.objects.get_or_create(user=user)
             login(request, user)
             return redirect('home')
     else:
-        form = UserCreationForm()
     return render(request, 'accounts/signup.html', {'form': form})
 
 
