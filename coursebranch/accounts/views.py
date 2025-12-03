@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, logout
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import login, logout, update_session_auth_hash
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.conf import settings
@@ -156,4 +156,46 @@ def add_completed_courses_view(request):
         "user_major": profile.major,
         "has_major": bool(profile.major),
     })
+
+@login_required
+def change_username_view(request):
+    if request.method == 'POST':
+        new_username = request.POST.get('username', '').strip()
+        
+        if not new_username:
+            messages.error(request, "Username cannot be empty.")
+            return redirect('change_username')
+        
+        if request.user.username == new_username:
+            messages.info(request, "This is already your username.")
+            return redirect('profile')
+        
+        from django.contrib.auth.models import User
+        if User.objects.filter(username=new_username).exists():
+            messages.error(request, "Username already taken. Please choose another.")
+            return redirect('change_username')
+        
+        request.user.username = new_username
+        request.user.save()
+        messages.success(request, "Username updated successfully!")
+        return redirect('profile')
+    
+    return render(request, 'accounts/change_username.html')
+
+@login_required
+def change_password_view(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, "Password changed successfully!")
+            return redirect('profile')
+        else:
+            for error in form.errors.values():
+                messages.error(request, error.as_text())
+    else:
+        form = PasswordChangeForm(request.user)
+    
+    return render(request, 'accounts/change_password.html', {'form': form})
 

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Change Username - CourseBranch{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="feature-card">
+        <div class="profile-header">
+            <h1>Change Username</h1>
+            <a href="{% url 'profile' %}" class="btn btn-outline">&larr; Back to Profile</a>
+        </div>
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="{% if message.tags == 'error' %}error-message{% else %}success-message{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="profile-info-box">
+            <p><strong>Current Username:</strong> <span class="muted-text">{{ user.username }}</span></p>
+        </div>
+
+        <form method="post" class="profile-form">
+            {% csrf_token %}
+
+            <div class="form-field">
+                <label for="username">New Username</label>
+                <input type="text" id="username" name="username" required 
+                       placeholder="Enter new username" 
+                       value="{{ user.username }}">
+            </div>
+
+            <div class="bottom-buttons">
+                <button type="submit" class="btn btn-primary">Update Username</button>
+                <a href="{% url 'profile' %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

@@ -41,6 +41,15 @@
     border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
+.error-message {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
 .profile-form {
     display: flex;
     flex-direction: column;
