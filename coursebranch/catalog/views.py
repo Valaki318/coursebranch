@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.db.models import Q
 from .models import Course, Review
 from django.contrib.auth.decorators import login_required
+from accounts.utils import get_major_requirements
 
 @login_required
 def course_detail_view(request, code):
@@ -28,17 +29,58 @@ def course_detail_view(request, code):
         "completed_codes": completed_codes,
     })
 
-def _get_major_query(major_source):
+def _get_major_query(major_source, college_name=None):
     """
     Constructs a Q object to filter courses based on a major string.
-    Uses mapping for known majors and strict code matching.
+    Extracts department codes from bu_majors.json and finds ALL courses with those codes in bu_courses.
     """
     if not major_source:
         return Q()
-
+    
+    # Get major requirements from bu_majors.json to extract department codes
+    major_info = get_major_requirements(major_source, college_name)
+    
+    if major_info and major_info['required_courses']:
+        # Extract department codes from required courses
+        # E.g., "CAS CS 101" -> extract "CS"
+        dept_codes = set()
+        college_codes = set()
+        
+        for course_code in major_info['required_courses']:
+            parts = course_code.strip().split()
+            if len(parts) >= 2:
+                # Format: "COLLEGE DEPT NUMBER" or "DEPT NUMBER"
+                if len(parts) >= 3:
+                    # "CAS CS 101" -> college="CAS", dept="CS"
+                    college_codes.add(parts[0])
+                    dept_codes.add(parts[1])
+                else:
+                    # "CS 101" -> dept="CS"
+                    dept_codes.add(parts[0])
+        
+        if dept_codes:
+            # Build query to match ALL courses with these department codes
+            query = Q()
+            for dept in dept_codes:
+                # Match "CAS CS 101" or "CS 101"
+                dept_query = Q(code__icontains=f" {dept} ") | Q(code__startswith=f"{dept} ")
+                
+                # If we know the college, make it more specific
+                if college_codes:
+                    for college in college_codes:
+                        dept_query |= Q(code__istartswith=f"{college} {dept} ")
+                
+                query |= dept_query
+            
+            # Additional college filter if provided
+            if college_name:
+                query &= Q(code__icontains=college_name)
+            
+            return query
+    
+    # Fallback: Manual mapping for common majors
     full_major = major_source.strip().upper()
     
-    # Common Major to Dept Code Mapping
     MAJOR_CODES = {
         "COMPUTER SCIENCE": "CS",
         "COMP SCI": "CS",
@@ -51,34 +93,26 @@ def _get_major_query(major_source):
         "PHYSICS": "PY",
         "CHEMISTRY": "CH",
         "BIOLOGY": "BI",
-        "ECONOMICS": "EC", # Note: BU Economics is CAS EC. ENG EC is ECE. Overlap risk? 
-                           # CAS EC vs ENG EC. We filter by code.
-                           # "CAS EC" vs "ENG EC".
+        "ECONOMICS": "EC",
         "PSYCHOLOGY": "PS",
     }
 
     target_code = MAJOR_CODES.get(full_major)
     
-    # Heuristic: If major is short (<=4 chars), assume it's a code (e.g. "CS", "ENG")
     if not target_code and len(full_major) <= 4 and full_major.isalnum():
         target_code = full_major
 
     if target_code:
-        # Strict Code Matching
-        # Matches "CAS CS 101" (contains " CS ")
-        # Matches "CS 101" (starts with "CS ")
-        # Avoids "PHYSICS" matching "CS" (no " CS " in "CAS PY...")
         query = Q(code__icontains=f" {target_code} ") | Q(code__startswith=f"{target_code} ")
-        
-        # Also allow standard college prefixes explicitly for safety
         query |= Q(code__istartswith=f"CAS {target_code} ")
         query |= Q(code__istartswith=f"ENG {target_code} ")
         query |= Q(code__istartswith=f"QST {target_code} ")
         query |= Q(code__istartswith=f"COM {target_code} ")
         
+        if college_name:
+            query &= Q(code__icontains=college_name)
     else:
-        # Fallback: Name must contain ALL tokens (AND logic)
-        # e.g. "Political Science" -> Name contains "Political" AND "Science"
+        # Name-based search as last resort
         tokens = [t for t in re.split(r'[^a-z0-9]+', major_source.lower()) if t]
         query = Q()
         if tokens:
@@ -127,10 +161,7 @@ def catalog_view(request):
     # If I select "My Major Only" AND search "Data", I should see Data courses in my major.
     if filter_type == 'major' and user_major:
         # Filter by major using robust logic
-        query = _get_major_query(user_major)
-        if user_college:
-             # Also filter by college if available
-             query &= Q(college__name__icontains=user_college)
+        query = _get_major_query(user_major, user_college)
         courses_qs = courses_qs.filter(query)
     elif filter_type == 'major' and not user_major:
         # User wants major filter but has no major set
@@ -170,13 +201,22 @@ def course_graph_json(request):
     """Returns the JSON data for the Cytoscape graph."""
     major_query = request.GET.get('major')
     profile_major = ''
+    profile_college = ''
     completed_course_codes = set()
+    required_course_codes = set()
     
     if request.user.is_authenticated:
         profile = getattr(request.user, 'profile', None)
         if profile:
             profile_major = (profile.major or '').strip()
+            profile_college = (profile.college or '').strip()
             completed_course_codes = set(profile.completed_courses.values_list('code', flat=True))
+            
+            # Get required courses for this major from bu_majors.json
+            if profile_major:
+                major_info = get_major_requirements(profile_major, profile_college)
+                if major_info:
+                    required_course_codes = set(major_info['required_courses'])
             
     major_source = major_query or profile_major
     
@@ -184,7 +224,7 @@ def course_graph_json(request):
 
     # 1. Initial Query
     if major_source:
-        query = _get_major_query(major_source)
+        query = _get_major_query(major_source, profile_college)
         initial_courses = list(Course.objects.filter(query))
         print(f"Graph Filter: '{major_source}' -> {len(initial_courses)} initial nodes.")
     
@@ -226,7 +266,8 @@ def course_graph_json(request):
                 "label": course.code,
                 "name": course.name,
                 "level": _derive_course_level(course.code),
-                "completed": course.code in completed_course_codes
+                "completed": course.code in completed_course_codes,
+                "required": course.code in required_course_codes
             }
         })
         

@@ -6,37 +6,10 @@ from django.contrib import messages
 from django.conf import settings
 from .models import Profile
 from .forms import SignUpForm
+from .utils import calculate_degree_progress, get_colleges_and_majors
 from catalog.models import Course
 import json
 import os
-
-
-def get_colleges_and_majors():
-    """Parses bu_courses.json to extract unique colleges and their majors (departments)."""
-    json_path = os.path.join(settings.BASE_DIR, 'bu_courses.json')
-    data = {}
-    try:
-        with open(json_path, 'r', encoding='utf-8') as f:
-            courses = json.load(f)
-            for course in courses:
-                code = course.get('course_code', '')
-                # Expected format: "COLLEGE DEPT NUMBER" e.g. "CAS CS 101"
-                parts = code.split()
-                if len(parts) >= 2:
-                    college = parts[0]
-                    dept = parts[1]
-                    if college not in data:
-                        data[college] = set()
-                    data[college].add(dept)
-    except FileNotFoundError:
-        pass
-    
-    # Convert sets to sorted lists
-    sorted_data = {}
-    for college, depts in data.items():
-        sorted_data[college] = sorted(list(depts))
-    
-    return sorted_data
 
 
 def signup_view(request):
@@ -71,9 +44,15 @@ def logout_view(request):
 
 
 def home_view(request):
-    """Landing page for anonymous users; redirects logged-in users."""
+    """Landing page for anonymous users; dashboard for logged-in users."""
     if request.user.is_authenticated:
-        return redirect('catalog')
+        profile, _ = Profile.objects.get_or_create(user=request.user)
+        progress = calculate_degree_progress(profile)
+        
+        return render(request, 'home.html', {
+            'profile': profile,
+            'progress': progress
+        })
     return render(request, 'landing.html')
 
 
@@ -141,9 +120,7 @@ def add_completed_courses_view(request):
     
     if filter_type == 'major' and profile.major:
         from catalog.views import _get_major_query
-        query = _get_major_query(profile.major)
-        if profile.college:
-            query &= Q(college__name__icontains=profile.college)
+        query = _get_major_query(profile.major, profile.college)
         available_courses = available_courses.filter(query)
     elif filter_type == 'major' and not profile.major:
         available_courses = Course.objects.none()
@@ -238,9 +215,7 @@ def onboarding_view(request):
     
     if filter_type == 'major' and profile.major:
         from catalog.views import _get_major_query
-        query = _get_major_query(profile.major)
-        if profile.college:
-            query &= Q(college__name__icontains=profile.college)
+        query = _get_major_query(profile.major, profile.college)
         available_courses = available_courses.filter(query)
     elif filter_type == 'major' and not profile.major:
         available_courses = Course.objects.none()
