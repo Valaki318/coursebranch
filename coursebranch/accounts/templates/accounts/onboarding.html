@@ -42,7 +42,7 @@
                 </div>
 
                 <div class="form-field">
-                    <label for="major">Major (Dept)</label>
+                    <label for="major">Major</label>
                     <select id="major" name="major">
                         <option value="">-- Select Major --</option>
                     </select>
@@ -166,11 +166,11 @@
             majorSelect.innerHTML = '<option value="">-- Select Major --</option>';
 
             if (selectedCollege && collegesData[selectedCollege]) {
-                collegesData[selectedCollege].forEach(dept => {
+                collegesData[selectedCollege].forEach(majorName => {
                     const option = document.createElement('option');
-                    option.value = dept;
-                    option.textContent = dept;
-                    if (dept === currentMajor) {
+                    option.value = majorName;
+                    option.textContent = majorName;
+                    if (majorName === currentMajor) {
                         option.selected = true;
                     }
                     majorSelect.appendChild(option);
