@@ -18,9 +18,10 @@
             <a href="{% url 'home' %}" class="logo">CourseBranch</a>
             
             <nav class="nav-links">
-                <a href="{% url 'home' %}" class="nav-link">Home</a>
-                <a href="/catalog/" class="nav-link">Catalog</a>
-                <a href="/catalog/tree/" class="nav-link">Graph</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'catalog' %}" class="nav-link">Catalog</a>
+                    <a href="{% url 'course_tree' %}" class="nav-link">Graph</a>
+                {% endif %}
             </nav>
 
             <div class="user-actions">

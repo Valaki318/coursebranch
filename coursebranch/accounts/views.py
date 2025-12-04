@@ -71,8 +71,10 @@ def logout_view(request):
 
 
 def home_view(request):
-    """Simple home page with or without login"""
-    return render(request, 'home.html')
+    """Landing page for anonymous users; redirects logged-in users."""
+    if request.user.is_authenticated:
+        return redirect('catalog')
+    return render(request, 'landing.html')
 
 
 @login_required

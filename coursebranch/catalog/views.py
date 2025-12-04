@@ -5,6 +5,7 @@ from django.db.models import Q
 from .models import Course, Review
 from django.contrib.auth.decorators import login_required
 
+@login_required
 def course_detail_view(request, code):
     course = get_object_or_404(Course, code=code)
     filter_type = request.GET.get('filter', 'all')
@@ -88,6 +89,7 @@ def _get_major_query(major_source):
     
     return query
 
+@login_required
 def catalog_view(request):
     # Get filter parameter (default to 'all')
     filter_type = request.GET.get('filter', 'all')
@@ -145,6 +147,7 @@ def catalog_view(request):
         "user_courses": user_courses
     })
 
+@login_required
 def course_tree_view(request):
     """Renders the static HTML page for the Cytoscape graph."""
     return render(request, "catalog/tree_cytoscape.html")
@@ -162,6 +165,7 @@ def _derive_course_level(code: str) -> str:
     bucket = min(500, (number // 100) * 100)
     return str(bucket)
 
+@login_required
 def course_graph_json(request):
     """Returns the JSON data for the Cytoscape graph."""
     major_query = request.GET.get('major')
@@ -238,6 +242,7 @@ def course_graph_json(request):
                 
     return JsonResponse({"elements": {"nodes": nodes, "edges": edges}})
 
+@login_required
 def add_course(request):
     if request.method == "POST" and request.user.is_authenticated:
         course = Course.objects.get(code=request.POST.get("code"))
@@ -245,6 +250,7 @@ def add_course(request):
         prof.completed_courses.add(course)
         return JsonResponse({"status": "ok"})
 
+@login_required
 def remove_course(request):
     if request.method == "POST" and request.user.is_authenticated:
         course = Course.objects.get(code=request.POST.get("code"))

@@ -1,0 +1,338 @@
+/* Landing Page Specific Styles */
+
+/* Hide the default header as we'll build a custom one for the landing page */
+.landing-page header {
+    display: none;
+}
+
+.landing-page main {
+    max-width: 100%;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* Custom Landing Header */
+.landing-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 3rem; /* Increased padding left/right to 3rem */
+    max-width: 1400px;
+    margin: 0 auto;
+    z-index: 10;
+}
+
+.landing-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--dark-emerald);
+    text-decoration: none;
+}
+
+.landing-logo img {
+    height: 100px;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    display: block;
+}
+
+.landing-nav {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Hero Section */
+.hero-section {
+    position: relative;
+    padding: 6rem 2rem 2rem; /* Reduced bottom padding further */
+    background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    min-height: 100vh;
+    box-sizing: border-box; /* Ensure padding is included in height */
+}
+
+.hero-container {
+    max-width: 1100px; /* Slightly reduced max-width to make content tighter */
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: center;
+    z-index: 1;
+}
+
+.hero-content h1 {
+    font-size: 2.75rem; /* Slightly smaller font size */
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+.hero-content p {
+    font-size: 1.05rem; /* Slightly smaller font size */
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    max-width: 450px;
+    line-height: 1.5;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn-landing-primary {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 6px -1px rgba(30, 97, 51, 0.2);
+}
+
+.btn-landing-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(30, 97, 51, 0.3);
+    background-color: var(--primary-hover);
+}
+
+.btn-landing-secondary {
+    background-color: transparent;
+    color: var(--text-color);
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s;
+}
+
+.btn-landing-secondary:hover {
+    background-color: white;
+    border-color: var(--text-muted);
+}
+
+.hero-image {
+    position: relative;
+}
+
+.hero-image img {
+    width: 100%;
+    height: auto;
+    max-width: 480px; /* Further reduced max-width */
+}
+
+
+/* Blob Backgrounds */
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.5;
+    z-index: 0;
+}
+
+.blob-1 {
+    top: -10%;
+    left: -10%;
+    width: 500px;
+    height: 500px;
+    background-color: var(--periwinkle);
+}
+
+.blob-2 {
+    bottom: -10%;
+    right: -5%;
+    width: 600px;
+    height: 600px;
+    background-color: #dcfce7; /* Light emerald */
+}
+
+/* Features Section */
+.features-section {
+    padding: 6rem 2rem;
+    background-color: white;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.section-header h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+.section-header p {
+    font-size: 1.125rem;
+    color: var(--text-muted);
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.feature-card {
+    padding: 2rem;
+    border-radius: 1.5rem;
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-color);
+}
+
+.feature-icon {
+    width: 50px;
+    height: 50px;
+    background-color: var(--periwinkle);
+    color: var(--primary-color);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.feature-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+/* How It Works */
+.how-it-works {
+    padding: 6rem 2rem;
+    background-color: #f8fafc;
+}
+
+.steps-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: grid;
+    gap: 3rem;
+}
+
+.step {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.step-number {
+    font-size: 4rem;
+    font-weight: 900;
+    line-height: 1;
+    color: #e2e8f0;
+    flex-shrink: 0;
+}
+
+.step-content h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+
+.step-content p {
+    color: var(--text-muted);
+}
+
+/* CTA Section */
+.cta-section {
+    padding: 6rem 2rem;
+    text-align: center;
+    background-color: var(--dark-emerald);
+    color: white;
+}
+
+.cta-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.cta-container h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.cta-container p {
+    font-size: 1.25rem;
+    margin-bottom: 2.5rem;
+    opacity: 0.9;
+}
+
+.btn-cta-white {
+    background-color: white;
+    color: var(--dark-emerald);
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: inline-block;
+    transition: transform 0.2s;
+}
+
+.btn-cta-white:hover {
+    transform: scale(1.05);
+    background-color: #f0fdf4;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 3rem;
+    }
+    
+    .hero-content p {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .hero-buttons {
+        justify-content: center;
+    }
+
+    .hero-content h1 {
+        font-size: 2.5rem;
+    }
+
+    .hero-image {
+        order: -1; /* Image on top on mobile? Or keep bottom? */
+        /* Keeping bottom by default, but let's make it smaller */
+        max-width: 300px;
+        margin: 0 auto;
+    }
+}
+

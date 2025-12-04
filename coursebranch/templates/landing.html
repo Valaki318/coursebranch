@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Master Your Degree Path - CourseBranch{% endblock %}
+
+{% block body_class %}landing-page{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/landing.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Custom Header -->
+<nav class="landing-header">
+    <a href="/" class="landing-logo">
+        <img src="{% static 'assets/logo/full_logo_cb.png' %}" alt="CourseBranch Logo">
+    </a>
+    <div class="landing-nav">
+        <a href="{% url 'login' %}" class="btn-landing-secondary">Log In</a>
+        <a href="{% url 'signup' %}" class="btn-landing-primary">Sign Up</a>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    
+    <div class="hero-container">
+        <div class="hero-content">
+            <h1>Visualize Your <br><span>Academic Journey</span></h1>
+            <p>
+                Stop guessing with your degree requirements. CourseBranch helps you track completed courses, visualize prerequisites, and map out your path to graduation with confidence.
+            </p>
+            <div class="hero-buttons">
+                <a href="{% url 'signup' %}" class="btn-landing-primary">Get Started for Free</a>
+                <a href="#how-it-works" class="btn-landing-secondary">How it Works</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="{% static 'assets/landing/student.png' %}" alt="Student Planning Illustration">
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section" id="features">
+    <div class="section-header">
+        <h2>Everything you need to plan ahead</h2>
+        <p>We've simplified the complex web of prerequisites into an intuitive interface.</p>
+    </div>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">🕸️</div>
+            <h3>Interactive Prerequisite Graph</h3>
+            <p>See how every course connects. Our visual graph shows you exactly what you need to take before you can unlock advanced electives.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📚</div>
+            <h3>Smart Catalog Search</h3>
+            <p>Filter by college, major, and course level. Find the exact class you're looking for without digging through endless PDFs.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🎓</div>
+            <h3>Progress Tracking</h3>
+            <p>Mark courses as complete and watch your graph update in real-time. Always know how close you are to your degree.</p>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-it-works" id="how-it-works">
+    <div class="section-header">
+        <h2>How CourseBranch Works</h2>
+    </div>
+
+    <div class="steps-container">
+        <div class="step">
+            <div class="step-number">01</div>
+            <div class="step-content">
+                <h3>Create Your Profile</h3>
+                <p>Sign up and tell us your college, major, and graduation year so we can tailor the experience to you.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">02</div>
+            <div class="step-content">
+                <h3>Mark Completed Courses</h3>
+                <p>Select the courses you've already finished. We'll save your progress and use it to calculate what's next.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">03</div>
+            <div class="step-content">
+                <h3>Explore & Plan</h3>
+                <p>Use the interactive graph to see what new courses are available to you and plan your next semester.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="cta-container">
+        <h2>Ready to take control of your degree?</h2>
+        <p>Join students who are planning their academic future with clarity.</p>
+        <a href="{% url 'signup' %}" class="btn-cta-white">Create Free Account</a>
+    </div>
+</section>
+
+{% endblock %}
