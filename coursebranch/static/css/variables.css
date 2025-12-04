@@ -38,6 +38,8 @@
     --graph-node-completed-border: #15803d;
     --graph-node-incomplete: #fbbf24;
     --graph-node-incomplete-border: #f59e0b;
+    --graph-node-required: #e74c3c;
+    --graph-node-required-border: #c0392b;
     --graph-node-text: #0f172a;
     --graph-node-border: #475569;
     --graph-edge-color: #94a3b8;
