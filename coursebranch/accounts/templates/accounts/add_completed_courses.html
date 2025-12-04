@@ -6,11 +6,13 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/catalog.css' %}">
 <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<link rel="stylesheet" href="{% static 'css/catalog-pages.css' %}">
+<link rel="stylesheet" href="{% static 'css/onboarding.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="catalog-container">
-    <a href="{% url 'completed_courses' %}" class="btn btn-outline" style="margin-bottom: 2rem; display: inline-block;">&larr; Back to Completed Courses</a>
+    <a href="{% url 'completed_courses' %}" class="btn btn-outline add-courses-back-link">&larr; Back to Completed Courses</a>
     <div class="catalog-header">
         <h1>Edit Completed Courses</h1>
         <p>Manage your completed courses by adding or removing them from your list.</p>
@@ -32,13 +34,13 @@
                     </div>
                     <h4>{{ course.name }}</h4>
                     <p>{{ course.description|truncatewords:20 }}</p>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted);">
+                    <div class="courses-meta-info">
                         <span>{{ course.credits }} Credits</span>
                         <span>{{ course.instructor }}</span>
                     </div>
                 </div>
                 {% empty %}
-                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                <div class="courses-empty-state">
                     <p>No completed courses yet. Add courses from the right panel.</p>
                 </div>
                 {% endfor %}
@@ -52,21 +54,19 @@
             </div>
 
             <!-- Search Bar and Filter -->
-            <div style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                <form method="get" action="" style="display: flex; gap: 0.5rem; flex: 1;">
+            <div class="add-courses-search-container">
+                <form method="get" action="" class="add-courses-search-form">
                     {% if filter_type != 'all' %}
                     <input type="hidden" name="filter" value="{{ filter_type }}">
                     {% endif %}
-                    <input type="text" name="q" value="{{ search_query }}" placeholder="Search courses..." 
-                           style="flex: 1; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid var(--border-color); background-color: var(--background-color); color: var(--text-color);">
+                    <input type="text" name="q" value="{{ search_query }}" placeholder="Search courses..." class="add-courses-search-input">
                     <button type="submit" class="btn btn-outline">Search</button>
                 </form>
             </div>
 
-            <div style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                <label for="course-filter" style="font-weight: 600;">Show:</label>
-                <select id="course-filter" onchange="window.location.href='?filter=' + this.value + '&q={{ search_query|urlencode }}'" 
-                        style="padding: 0.5rem; border-radius: 0.5rem; border: 1px solid var(--border-color); background-color: var(--background-color); color: var(--text-color);">
+            <div class="add-courses-filter-container">
+                <label for="course-filter" class="add-courses-filter-label">Show:</label>
+                <select id="course-filter" onchange="window.location.href='?filter=' + this.value + '&q={{ search_query|urlencode }}'" class="add-courses-filter-select">
                     <option value="all" {% if filter_type == 'all' %}selected{% endif %}>All Courses</option>
                     <option value="major" {% if filter_type == 'major' %}selected{% endif %} {% if not has_major %}disabled{% endif %}>My Major Only{% if not has_major %} (Set your major in profile){% endif %}</option>
                 </select>
@@ -84,13 +84,13 @@
                     </div>
                     <h4>{{ course.name }}</h4>
                     <p>{{ course.description|truncatewords:20 }}</p>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted);">
+                    <div class="courses-meta-info">
                         <span>{{ course.credits }} Credits</span>
                         <span>{{ course.instructor }}</span>
                     </div>
                 </div>
                 {% empty %}
-                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                <div class="courses-empty-state">
                     <p>No courses found. Try adjusting your search or filters.</p>
                 </div>
                 {% endfor %}

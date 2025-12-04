@@ -6,11 +6,12 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/catalog.css' %}">
 <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<link rel="stylesheet" href="{% static 'css/catalog-pages.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="catalog-container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div class="completed-courses-header">
         <a href="{% url 'profile' %}" class="btn btn-outline">&larr; Back to Profile Page</a>
         <a href="{% url 'add_completed_courses' %}" class="btn btn-primary">Edit Completed Courses</a>
     </div>
@@ -21,7 +22,7 @@
     <div class="courses-grid-4col">
         {% for course in courses %}
         <!-- Pass filter_type and search_query to detail view -->
-        <div class="feature-card" onclick="window.location.href='{% url 'course_detail' course.code %}?filter={{ filter_type }}&q={{ search_query|urlencode }}'" style="cursor: pointer;">
+        <div class="feature-card catalog-course-card" onclick="window.location.href='{% url 'course_detail' course.code %}?filter={{ filter_type }}&q={{ search_query|urlencode }}'">
             <h3>{{ course.code }}</h3>
             <h4>{{ course.name }}</h4>
             <p>{{ course.description|truncatewords:20 }}</p>
@@ -31,10 +32,10 @@
             </div>
         </div>
         {% empty %}
-        <div style="text-align: center; grid-column: 1/-1; padding: 2rem;">
-            <p style="font-size: 1.2rem; color: var(--text-muted);">No courses found matching your criteria.</p>
+        <div class="catalog-empty-state">
+            <p class="catalog-empty-text">No courses found matching your criteria.</p>
             {% if search_query or filter_type != 'all' %}
-            <a href="{% url 'catalog' %}" class="btn btn-outline" style="margin-top: 1rem;">Clear Filters</a>
+            <a href="{% url 'catalog' %}" class="btn btn-outline catalog-empty-action">Clear Filters</a>
             {% endif %}
         </div>
         {% endfor %}

@@ -6,6 +6,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/catalog.css' %}">
 <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<link rel="stylesheet" href="{% static 'css/onboarding.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -24,8 +25,8 @@
     {% endif %}
 
     <!-- Step 1: Major Selection -->
-    <div class="feature-card" style="margin-bottom: 2rem;">
-        <h2 style="margin-bottom: 1.5rem;">Step 1: Set Your Major</h2>
+    <div class="feature-card onboarding-step-card">
+        <h2>Step 1: Set Your Major</h2>
         
         <form method="post" id="major-form" class="profile-form">
             {% csrf_token %}
@@ -55,16 +56,16 @@
                     value="{{ profile.graduation_year|default:'' }}" placeholder="e.g., 2026">
             </div>
 
-            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <div class="onboarding-form-actions">
                 <button type="submit" class="btn btn-primary">Save Profile Info</button>
             </div>
         </form>
     </div>
 
     <!-- Step 2: Completed Courses -->
-    <div class="feature-card">
-        <h2 style="margin-bottom: 1rem;">Step 2: Add Your Completed Courses (Optional)</h2>
-        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Help us track your progress by adding courses you've already completed.</p>
+    <div class="feature-card onboarding-step-2">
+        <h2>Step 2: Add Your Completed Courses (Optional)</h2>
+        <p>Help us track your progress by adding courses you've already completed.</p>
 
         <div class="two-column-layout">
             <!-- Left Column: Completed Courses -->
@@ -82,13 +83,13 @@
                         </div>
                         <h5>{{ course.name }}</h5>
                         <p>{{ course.description|truncatewords:20 }}</p>
-                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted);">
+                        <div class="course-item-meta">
                             <span>{{ course.credits }} Credits</span>
                             <span>{{ course.instructor }}</span>
                         </div>
                     </div>
                     {% empty %}
-                    <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <div class="course-item-empty">
                         <p>No completed courses yet. Add courses from the right panel.</p>
                     </div>
                     {% endfor %}
@@ -102,21 +103,19 @@
                 </div>
 
                 <!-- Search Bar and Filter -->
-                <div style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                    <form method="get" action="" style="display: flex; gap: 0.5rem; flex: 1;">
+                <div class="onboarding-search-container">
+                    <form method="get" action="" class="onboarding-search-form">
                         {% if filter_type != 'all' %}
                         <input type="hidden" name="filter" value="{{ filter_type }}">
                         {% endif %}
-                        <input type="text" name="q" value="{{ search_query }}" placeholder="Search courses..." 
-                               style="flex: 1; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid var(--border-color); background-color: var(--background-color); color: var(--text-color);">
+                        <input type="text" name="q" value="{{ search_query }}" placeholder="Search courses..." class="onboarding-search-input">
                         <button type="submit" class="btn btn-outline">Search</button>
                     </form>
                 </div>
 
-                <div style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <label for="course-filter" style="font-weight: 600;">Show:</label>
-                    <select id="course-filter" onchange="window.location.href='?filter=' + this.value + '&q={{ search_query|urlencode }}'" 
-                            style="padding: 0.5rem; border-radius: 0.5rem; border: 1px solid var(--border-color); background-color: var(--background-color); color: var(--text-color);">
+                <div class="onboarding-filter-container">
+                    <label for="course-filter" class="onboarding-filter-label">Show:</label>
+                    <select id="course-filter" onchange="window.location.href='?filter=' + this.value + '&q={{ search_query|urlencode }}'" class="onboarding-filter-select">
                         <option value="all" {% if filter_type == 'all' %}selected{% endif %}>All Courses</option>
                         <option value="major" {% if filter_type == 'major' %}selected{% endif %} {% if not has_major %}disabled{% endif %}>My Major Only{% if not has_major %} (Set your major first){% endif %}</option>
                     </select>
@@ -134,13 +133,13 @@
                         </div>
                         <h5>{{ course.name }}</h5>
                         <p>{{ course.description|truncatewords:20 }}</p>
-                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted);">
+                        <div class="course-item-meta">
                             <span>{{ course.credits }} Credits</span>
                             <span>{{ course.instructor }}</span>
                         </div>
                     </div>
                     {% empty %}
-                    <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <div class="course-item-empty">
                         <p>No courses found. Try adjusting your search or filters.</p>
                     </div>
                     {% endfor %}
@@ -148,7 +147,7 @@
             </div>
         </div>
 
-        <div style="text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
+        <div class="onboarding-complete-section">
             <a href="{% url 'home' %}" class="btn btn-primary btn-lg">Complete Setup & Continue to CourseBranch</a>
         </div>
     </div>
@@ -240,20 +239,5 @@
         .catch(error => console.error('Error:', error));
     }
 </script>
-
-<style>
-.course-item h4 {
-    margin: 0;
-    font-size: 0.95rem;
-    color: var(--text-color);
-}
-
-.course-item h5 {
-    margin: 0.25rem 0 0.5rem 0;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--text-muted);
-}
-</style>
 {% endblock %}
 

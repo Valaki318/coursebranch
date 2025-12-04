@@ -17,11 +17,11 @@
 
         <div class="profile-info-box">
             <p><strong>Username:</strong> <span class="muted-text">{{ user.username }}</span> 
-                <a href="{% url 'change_username' %}" class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.85rem; margin-left: 0.5rem;">Change</a>
+                <a href="{% url 'change_username' %}" class="btn btn-outline profile-change-btn">Change</a>
             </p>
             <p><strong>Email:</strong> <span class="muted-text">{{ user.email|default:"Not set" }}</span></p>
             <p><strong>Password:</strong> <span class="muted-text">••••••••</span> 
-                <a href="{% url 'change_password' %}" class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.85rem; margin-left: 0.5rem;">Change</a>
+                <a href="{% url 'change_password' %}" class="btn btn-outline profile-change-btn">Change</a>
             </p>
         </div>
 

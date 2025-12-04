@@ -7,6 +7,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/graph.css' %}">
+<link rel="stylesheet" href="{% static 'css/graph-legend.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -18,15 +19,15 @@
     <div class="graph-legend">
         <h6>Legend</h6>
         <div class="legend-item">
-            <span class="legend-color" style="background-color: var(--graph-node-required);"></span>
+            <span class="legend-color legend-color-required"></span>
             <small>Required</small>
         </div>
         <div class="legend-item">
-            <span class="legend-color" style="background-color: var(--graph-node-default);"></span>
+            <span class="legend-color legend-color-default"></span>
             <small>Elective</small>
         </div>
         <div class="legend-item">
-            <span class="legend-color" style="background-color: var(--graph-node-completed);"></span>
+            <span class="legend-color legend-color-completed"></span>
             <small>Completed</small>
         </div>
         <div class="legend-item">
@@ -34,7 +35,7 @@
             <small>Selected</small>
         </div>
         <div class="legend-item">
-            <span class="legend-color" style="background-color: var(--graph-node-incomplete);"></span>
+            <span class="legend-color legend-color-incomplete"></span>
             <small>Needed Prereq</small>
         </div>
         <small class="legend-note">Click a course to see its path</small>
@@ -149,7 +150,7 @@
             })
             .catch(err => {
                 console.error("Error loading graph:", err);
-                document.getElementById('cy').innerHTML = '<div style="padding: 20px; color: red;">Error loading graph: ' + err.message + '</div>';
+                document.getElementById('cy').innerHTML = '<div class="graph-error-message">Error loading graph: ' + err.message + '</div>';
             });
 
         function initGraph(elements) {
@@ -472,7 +473,7 @@
 
             } catch (error) {
                 console.error('Error initializing graph:', error);
-                document.getElementById('cy').innerHTML = '<div style="padding: 20px; color: red;">Error initializing graph: ' + error.message + '</div>';
+                document.getElementById('cy').innerHTML = '<div class="graph-error-message">Error initializing graph: ' + error.message + '</div>';
             }
         }
     });

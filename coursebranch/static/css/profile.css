@@ -237,7 +237,11 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-height: 2.5em;
-    line-height: 1.25em;
+}
+
+.profile-change-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.85rem;
+    margin-left: 0.5rem;
 }
 

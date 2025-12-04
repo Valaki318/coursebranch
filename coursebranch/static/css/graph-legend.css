@@ -1,0 +1,21 @@
+.legend-color-required {
+    background-color: var(--graph-node-required);
+}
+
+.legend-color-default {
+    background-color: var(--graph-node-default);
+}
+
+.legend-color-completed {
+    background-color: var(--graph-node-completed);
+}
+
+.legend-color-incomplete {
+    background-color: var(--graph-node-incomplete);
+}
+
+.graph-error-message {
+    padding: 20px;
+    color: red;
+}
+

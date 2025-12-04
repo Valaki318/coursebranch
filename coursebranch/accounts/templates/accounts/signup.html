@@ -1,22 +1,26 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Sign Up - CourseBranch{% endblock %}
 
-{% block content %}
-<div style="max-width: 400px; margin: 0 auto;">
-    <div class="feature-card">
-        <h1 style="margin-bottom: 2rem; text-align: center;">Sign Up</h1>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/signup.css' %}">
+{% endblock %}
 
-        <form method="post" style="display: flex; flex-direction: column; gap: 1.5rem;">
+{% block content %}
+<div class="signup-container">
+    <div class="feature-card">
+        <h1 class="signup-title">Sign Up</h1>
+
+        <form method="post" class="signup-form">
             {% csrf_token %}
 
             {% if form.errors %}
-            <div
-                style="color: #ef4444; background-color: rgba(239, 68, 68, 0.1); padding: 0.75rem; border-radius: 0.5rem;">
+            <div class="signup-error-box">
                 <strong>Please correct the following errors:</strong>
                 {% for field in form %}
                 {% if field.errors %}
-                <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+                <ul class="signup-error-list">
                     {% for error in field.errors %}
                     <li><strong>{{ field.label }}:</strong> {{ error }}</li>
                     {% endfor %}
@@ -24,7 +28,7 @@
                 {% endif %}
                 {% endfor %}
                 {% if form.non_field_errors %}
-                <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+                <ul class="signup-error-list">
                     {% for error in form.non_field_errors %}
                     <li>{{ error }}</li>
                     {% endfor %}
@@ -34,42 +38,33 @@
             {% endif %}
 
             <div>
-                <label for="id_username"
-                    style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Username</label>
-                <input type="text" name="username" id="id_username" required
-                    style="width: 100%; padding: 0.75rem; background-color: var(--background-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 0.5rem;">
+                <label for="id_username" class="signup-label">Username</label>
+                <input type="text" name="username" id="id_username" required class="signup-input">
             </div>
 
             <div>
-                <label for="id_email"
-                    style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Email</label>
-                <input type="email" name="email" id="id_email" required
-                    style="width: 100%; padding: 0.75rem; background-color: var(--background-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 0.5rem;"
-                    placeholder="email@example.com">
+                <label for="id_email" class="signup-label">Email</label>
+                <input type="email" name="email" id="id_email" required class="signup-input" placeholder="email@example.com">
             </div>
 
             <div>
-                <label for="id_password1"
-                    style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Password</label>
-                <input type="password" name="password1" id="id_password1" required
-                    style="width: 100%; padding: 0.75rem; background-color: var(--background-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 0.5rem;">
-                <small style="display: block; margin-top: 0.25rem; font-size: 0.75rem; color: var(--text-muted);">
+                <label for="id_password1" class="signup-label">Password</label>
+                <input type="password" name="password1" id="id_password1" required class="signup-input">
+                <small class="signup-help-text">
                     Your password must contain at least 8 characters and can't be entirely numeric.
                 </small>
             </div>
 
             <div>
-                <label for="id_password2"
-                    style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Confirm Password</label>
-                <input type="password" name="password2" id="id_password2" required
-                    style="width: 100%; padding: 0.75rem; background-color: var(--background-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 0.5rem;">
+                <label for="id_password2" class="signup-label">Confirm Password</label>
+                <input type="password" name="password2" id="id_password2" required class="signup-input">
             </div>
 
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Sign Up</button>
+            <button type="submit" class="btn btn-primary signup-submit">Sign Up</button>
         </form>
 
-        <div style="text-align: center; margin-top: 1.5rem; color: var(--text-muted);">
-            Already have an account? <a href="{% url 'login' %}" style="color: var(--primary-color);">Login</a>
+        <div class="signup-footer">
+            Already have an account? <a href="{% url 'login' %}" class="signup-footer-link">Login</a>
         </div>
     </div>
 </div>

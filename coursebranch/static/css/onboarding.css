@@ -1,0 +1,97 @@
+.onboarding-step-card {
+    margin-bottom: 2rem;
+}
+
+.onboarding-step-card h2 {
+    margin-bottom: 1.5rem;
+}
+
+.onboarding-step-2 h2 {
+    margin-bottom: 1rem;
+}
+
+.onboarding-step-2 p {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+.onboarding-form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.onboarding-search-container {
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.onboarding-search-form {
+    display: flex;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.onboarding-search-input {
+    flex: 1;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.onboarding-filter-container {
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.onboarding-filter-label {
+    font-weight: 600;
+}
+
+.onboarding-filter-select {
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.course-item-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.course-item-empty {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+}
+
+.onboarding-complete-section {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.course-item h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-color);
+}
+
+.course-item h5 {
+    margin: 0.25rem 0 0.5rem 0;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+

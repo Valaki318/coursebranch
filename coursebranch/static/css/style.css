@@ -186,3 +186,7 @@ footer {
     color: var(--text-muted);
     margin-top: auto;
 }
+
+.logout-form {
+    display: inline;
+}

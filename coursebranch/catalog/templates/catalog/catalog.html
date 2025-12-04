@@ -5,6 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/catalog.css' %}">
+<link rel="stylesheet" href="{% static 'css/catalog-pages.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -14,28 +15,28 @@
         <p>Browse all available courses.</p>
 
         <!-- Search Bar and Filter -->
-        <div class="filter-bar" style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; align-items: center; margin-top: 1.5rem;">
+        <div class="catalog-filter-bar">
             
             <!-- Search Form -->
-            <form method="get" action="" class="search-form" style="display: flex; gap: 0.5rem;">
+            <form method="get" action="" class="catalog-search-form">
                 {% if filter_type != 'all' %}
                 <input type="hidden" name="filter" value="{{ filter_type }}">
                 {% endif %}
-                <input type="text" name="q" value="{{ search_query }}" placeholder="Search courses..." class="form-control" style="padding: 0.5rem; border-radius: 4px; border: 1px solid var(--graph-node-border); min-width: 250px;">
-                <button type="submit" class="btn btn-outline" style="padding: 0.5rem 1rem;">Search</button>
+                <input type="text" name="q" value="{{ search_query }}" placeholder="Search courses..." class="form-input-small">
+                <button type="submit" class="btn btn-outline">Search</button>
             </form>
 
             <!-- Filter Dropdown -->
-            <div class="filter-container" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0;">
-                <label for="course-filter" style="margin: 0;">Show:</label>
-                <select id="course-filter" onchange="window.location.href='?filter=' + this.value + '&q={{ search_query|urlencode }}'" style="padding: 0.5rem; border-radius: 4px; border: 1px solid var(--graph-node-border);">
+            <div class="catalog-filter-container">
+                <label for="course-filter" class="catalog-filter-label">Show:</label>
+                <select id="course-filter" onchange="window.location.href='?filter=' + this.value + '&q={{ search_query|urlencode }}'" class="catalog-filter-select">
                     <option value="all" {% if filter_type == 'all' %}selected{% endif %}>All Courses</option>
                     <option value="major" {% if filter_type == 'major' %}selected{% endif %} {% if not has_major %}disabled{% endif %}>My Major Only{% if not has_major %} (Set your major in profile){% endif %}</option>
                 </select>
             </div>
 
             {% if filter_type == 'major' and has_major %}
-            <div style="display: flex; align-items: center;">
+            <div class="catalog-filter-badge-container">
                 <span class="filter-badge">Showing: {{ user_college }} {{ user_major }}</span>
             </div>
             {% endif %}
@@ -45,7 +46,7 @@
     <div class="features-grid">
         {% for course in courses %}
         <!-- Pass filter_type and search_query to detail view -->
-        <div class="feature-card" onclick="window.location.href='{% url 'course_detail' course.code %}?filter={{ filter_type }}&q={{ search_query|urlencode }}'" style="cursor: pointer;">
+        <div class="feature-card catalog-course-card" onclick="window.location.href='{% url 'course_detail' course.code %}?filter={{ filter_type }}&q={{ search_query|urlencode }}'">
             <div class="course-header">
                 <h3>{{ course.code }}</h3>
                 {% if course in user_courses %}
@@ -60,10 +61,10 @@
             </div>
         </div>
         {% empty %}
-        <div style="text-align: center; grid-column: 1/-1; padding: 2rem;">
-            <p style="font-size: 1.2rem; color: var(--text-muted);">No courses found matching your criteria.</p>
+        <div class="catalog-empty-state">
+            <p class="catalog-empty-text">No courses found matching your criteria.</p>
             {% if search_query or filter_type != 'all' %}
-            <a href="{% url 'catalog' %}" class="btn btn-outline" style="margin-top: 1rem;">Clear Filters</a>
+            <a href="{% url 'catalog' %}" class="btn btn-outline catalog-empty-action">Clear Filters</a>
             {% endif %}
         </div>
         {% endfor %}

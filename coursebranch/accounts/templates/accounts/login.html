@@ -1,47 +1,47 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Login - CourseBranch{% endblock %}
 
-{% block content %}
-<div style="max-width: 400px; margin: 0 auto;">
-    <div class="feature-card">
-        <h1 style="margin-bottom: 2rem; text-align: center;">Login</h1>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/forms.css' %}">
+{% endblock %}
 
-        <form method="post" style="display: flex; flex-direction: column; gap: 1.5rem;">
+{% block content %}
+<div class="form-container">
+    <div class="feature-card">
+        <h1 class="form-title">Login</h1>
+
+        <form method="post" class="form">
             {% csrf_token %}
 
             {% if form.non_field_errors %}
-            <div
-                style="color: #ef4444; background-color: rgba(239, 68, 68, 0.1); padding: 0.75rem; border-radius: 0.5rem;">
+            <div class="form-error-box">
                 {{ form.non_field_errors }}
             </div>
             {% endif %}
 
             <div>
-                <label for="id_username"
-                    style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Username</label>
-                <input type="text" name="username" id="id_username" required
-                    style="width: 100%; padding: 0.75rem; background-color: var(--background-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 0.5rem;">
+                <label for="id_username" class="form-label">Username</label>
+                <input type="text" name="username" id="id_username" required class="form-input">
                 {% if form.username.errors %}
-                <div style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem;">{{ form.username.errors }}</div>
+                <div class="form-error-text">{{ form.username.errors }}</div>
                 {% endif %}
             </div>
 
             <div>
-                <label for="id_password"
-                    style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Password</label>
-                <input type="password" name="password" id="id_password" required
-                    style="width: 100%; padding: 0.75rem; background-color: var(--background-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 0.5rem;">
+                <label for="id_password" class="form-label">Password</label>
+                <input type="password" name="password" id="id_password" required class="form-input">
                 {% if form.password.errors %}
-                <div style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem;">{{ form.password.errors }}</div>
+                <div class="form-error-text">{{ form.password.errors }}</div>
                 {% endif %}
             </div>
 
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            <button type="submit" class="btn btn-primary form-submit">Login</button>
         </form>
 
-        <div style="text-align: center; margin-top: 1.5rem; color: var(--text-muted);">
-            Don't have an account? <a href="{% url 'signup' %}" style="color: var(--primary-color);">Sign up</a>
+        <div class="form-footer">
+            Don't have an account? <a href="{% url 'signup' %}" class="form-footer-link">Sign up</a>
         </div>
     </div>
 </div>
