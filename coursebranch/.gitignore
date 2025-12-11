@@ -1,6 +1,4 @@
-# Database
-*.sqlite3
-db.sqlite3
+
 
 # Python cache
 __pycache__/
