@@ -2,21 +2,62 @@
 
 {% block title %}Review {{ course.code }}{% endblock %}
 
-{% block content %}
-<div style="max-width: 600px; margin: 0 auto;">
+{% block extra_css %}
+<style>
+    .rvwdiv {
+        max-width: 600px;
+        margin: 0 auto;
+    }
 
-    <a href="{% url 'course_detail' course.code %}" class="btn btn-outline" style="margin-bottom: 2rem; display: inline-block;">
+    .bck-btn {
+        margin-bottom: 2rem;
+        display: inline-block;
+    }
+
+    .rvwh1 {
+        margin-bottom: 1rem;
+    }
+
+    .rtnl,
+    .cmnt {
+        font-weight: bold;
+    }
+
+    .strs {
+        display: flex;
+        gap: 0.5rem;
+        font-size: 2rem;
+        cursor: pointer;
+        margin: 0.5rem 0;
+    }
+
+    .cmntb {
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 6px;
+        margin-top: 0.5rem;
+    }
+
+    .submit-btn {
+        margin-top: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rvwdiv">
+
+    <a href="{% url 'course_detail' course.code %}" class="btn btn-outline bck-btn">
         &larr; Back to {{ course.code }}
     </a>
 
-    <h1 style="margin-bottom: 1rem;">Review for {{ course.code }} — {{ course.name }}</h1>
+    <h1 class="rvwh1">{{ course.code }} — {{ course.name }} review</h1>
 
     <form method="POST" style="margin-top: 2rem;">
         {% csrf_token %}
 
-        <label style="font-weight: bold;">Rating</label>
-        <div style="display: flex; gap: 0.5rem; font-size: 2rem; cursor: pointer; margin: 0.5rem 0;"
-             id="star-container">
+        <label class="rtnl">Rating</label>
+        <div id="strc" class="strs">
             <span data-value="1">&#9733;</span>
             <span data-value="2">&#9733;</span>
             <span data-value="3">&#9733;</span>
@@ -24,15 +65,13 @@
             <span data-value="5">&#9733;</span>
         </div>
 
-        <input type="hidden" name="rating" id="rating-input" required>
+        <input type="hidden" name="rating" id="rate" required>
 
-        <label for="comment" style="font-weight: bold;">Comment</label>
-        <textarea name="comment" id="comment" rows="4"
-                  style="width: 100%; padding: 0.75rem; border-radius: 6px; margin-top: 0.5rem;"
-                  placeholder="Write your review..." required></textarea>
+        <label for="comment" class="cmnt">Comment</label>
+        <textarea name="comment" id="comment" rows="4" class="cmntb" required></textarea>
 
-        <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem;">
-            Submit Review
+        <button type="submit" class="btn btn-primary submit-btn">
+            Submit
         </button>
     </form>
 
@@ -41,19 +80,19 @@
 
 {% block extra_js %}
 <script>
-    const stars = document.querySelectorAll("#star-container span");
-    const ratingInput = document.getElementById("rating-input");
+    const stars = document.querySelectorAll("#strc span");
+    const rate = document.getElementById("rate");
 
     stars.forEach(star => {
         star.addEventListener("click", () => {
             const value = star.getAttribute("data-value");
-            ratingInput.value = value;
+            rate.value = value;
 
-            stars.forEach(s => {
-                if (s.getAttribute("data-value") <= value) {
-                    s.style.color = "gold";
+            stars.forEach(sta => {
+                if (sta.getAttribute("data-value") <= value) {
+                    sta.style.color = "gold";
                 } else {
-                    s.style.color = "gray";
+                    sta.style.color = "gray";
                 }
             });
         });
