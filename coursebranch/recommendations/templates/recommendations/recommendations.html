@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Recommendations - CourseBranch{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/catalog.css' %}">
+<link rel="stylesheet" href="{% static 'css/catalog-pages.css' %}">
+
+<style>
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        grid-auto-rows: auto;
+    }
+    
+    .catalog-course-card {
+        text-align: left !important;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.5rem;
+    
+        height: auto !important;
+        min-height: auto !important;
+        overflow: visible !important;
+    
+        /* Optional clean look */
+        border-radius: 16px;
+    }
+    
+
+    .catalog-course-card .course-header,
+    .catalog-course-card h3,
+    .catalog-course-card h4,
+    .catalog-course-card p {
+        text-align: left !important;
+        width: 100%;
+    }
+
+    .catalog-course-card p {
+        margin-bottom: 0.75rem;
+        flex-grow: 0;
+    }
+
+    .course-meta {
+        margin-top: auto;
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .feature-card.catalog-course-card {
+        height: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="catalog-container">
+    <div class="catalog-header">
+        <h1>Recommended Courses</h1>
+        <p>In order of most to least recommended. Based on your major, courses taken and reviews</p>
+
+    <div class="features-grid">
+        {% for rec in recs %}
+        <div class="feature-card catalog-course-card" onclick="window.location.href='{% url 'course_detail' rec.course.code %}?filter={{ filter_type }}&q={{ search_query|urlencode }}'">
+            <div class="course-header">
+                <h3>{{ rec.course.code }}</h3>
+            </div>
+
+            <h4>{{ rec.course.name }}</h4> 
+            <p>{{ rec.course.description|truncatewords:20 }}</p>
+
+            <h4>Recommendation</h4>
+            <p>Score: {{ rec.score }}</p>
+            <p>{{ rec.reason }}</p>
+
+            <div class="course-meta">
+                <span class="badge">{{ rec.course.credits }} Credits</span>
+                <span class="instructor">{{ rec.course.instructor }}</span>
+            </div>
+        </div>
+        {% empty %}
+        <div class="catalog-empty-state">
+            <p class="catalog-empty-text">No courses found matching your criteria.</p>
+            {% if search_query or filter_type != 'all' %}
+            <a href="{% url 'catalog' %}" class="btn btn-outline catalog-empty-action">Clear Filters</a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

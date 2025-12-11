@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import Avg
 
 class University(models.Model):
     name = models.CharField(max_length=200)
@@ -38,6 +39,9 @@ class Course(models.Model):
 
     def __str__(self):
         return f"{self.code}: {self.name}"
+
+    def average_rating(self):
+        return self.reviews.aggregate(avg=Avg("rating"))["avg"] or 0
 
 class Review(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="reviews")
