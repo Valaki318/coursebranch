@@ -39,7 +39,7 @@ CourseBranch is a Django web application for exploring course catalogs, visualiz
 ### 1. Clone the repository
 ```bash
 git clone https://github.com/Valaki318/coursebranch.git
-cd coursebranch
+cd coursebranch/coursebranch
 ```
 ### 2. Create virtual environment (recommended)
 ```bash
@@ -81,6 +81,10 @@ catalog/
 coursebranch/
     settings.py
     urls.py
+recommendations/
+    models.py
+    views.py
+    templates/recommendations
 templates/
 static/
 db.sqlite3
