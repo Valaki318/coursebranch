@@ -85,11 +85,10 @@
 
     stars.forEach(star => {
         star.addEventListener("click", () => {
-            const value = star.getAttribute("data-value");
-            rate.value = value;
+            rate.value = star.getAttribute("data-value");
 
             stars.forEach(sta => {
-                if (sta.getAttribute("data-value") <= value) {
+                if (sta.getAttribute("data-value") <= rate.value) {
                     sta.style.color = "gold";
                 } else {
                     sta.style.color = "gray";
