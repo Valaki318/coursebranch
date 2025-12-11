@@ -62,6 +62,11 @@ python manage.py createsuperuser
 ```bash
 python manage.py runserver
 ```
+### 7. Run the tests and coverage
+```bash
+coverage run manage.py test
+coverage report
+```
 
 ### Project Structure
 ``` swift
