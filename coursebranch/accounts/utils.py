@@ -201,8 +201,28 @@ def calculate_degree_progress(profile):
     completed_courses = profile.completed_courses.all()
     completed_codes = set(c.code for c in completed_courses)
     
-    # Find which required courses have been completed
-    completed_required = required_codes.intersection(completed_codes)
+    def normalize_code(code):
+        parts = code.strip().upper().split()
+        if len(parts) >= 3:
+            return f"{parts[1]} {parts[2]}"
+        elif len(parts) == 2:
+            return f"{parts[0]} {parts[1]}"
+        return code.strip().upper()
+    
+    required_normalized = {}
+    for req_code in required_codes:
+        norm = normalize_code(req_code)
+        required_normalized[norm] = req_code
+    
+    completed_normalized = {}
+    for comp_code in completed_codes:
+        norm = normalize_code(comp_code)
+        completed_normalized[norm] = comp_code
+    
+    completed_required = []
+    for norm_code, original_code in completed_normalized.items():
+        if norm_code in required_normalized:
+            completed_required.append(required_normalized[norm_code])
     
     total = len(required_codes)
     completed = len(completed_required)
@@ -210,7 +230,7 @@ def calculate_degree_progress(profile):
     
     return {
         'required_courses': sorted(list(required_codes)),
-        'completed_required': sorted(list(completed_required)),
+        'completed_required': sorted(completed_required),
         'total_required': total,
         'completed_count': completed,
         'percentage': round(percentage, 1),

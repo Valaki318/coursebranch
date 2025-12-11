@@ -42,14 +42,12 @@ def _get_major_query(major_source, college_name=None):
     
     if major_info and major_info['required_courses']:
         # Extract department codes from required courses
-        # E.g., "CAS CS 101" -> extract "CS"
         dept_codes = set()
         college_codes = set()
         
         for course_code in major_info['required_courses']:
             parts = course_code.strip().split()
             if len(parts) >= 2:
-                # Format: "COLLEGE DEPT NUMBER" or "DEPT NUMBER"
                 if len(parts) >= 3:
                     # "CAS CS 101" -> college="CAS", dept="CS"
                     college_codes.add(parts[0])
@@ -62,19 +60,16 @@ def _get_major_query(major_source, college_name=None):
             # Build query to match ALL courses with these department codes
             query = Q()
             for dept in dept_codes:
-                # Match "CAS CS 101" or "CS 101"
-                dept_query = Q(code__icontains=f" {dept} ") | Q(code__startswith=f"{dept} ")
+                # Match courses like "CAS CS 101" or "CS 101"
+                # Pattern: (optional college code) + dept code + space + numbers
+                dept_query = Q(code__icontains=f' {dept} ') | Q(code__istartswith=f'{dept} ')
                 
-                # If we know the college, make it more specific
+                # If we know specific colleges, add those patterns too
                 if college_codes:
                     for college in college_codes:
-                        dept_query |= Q(code__istartswith=f"{college} {dept} ")
+                        dept_query |= Q(code__istartswith=f'{college} {dept} ')
                 
                 query |= dept_query
-            
-            # Additional college filter if provided
-            if college_name:
-                query &= Q(code__icontains=college_name)
             
             return query
     
@@ -83,6 +78,7 @@ def _get_major_query(major_source, college_name=None):
     
     MAJOR_CODES = {
         "COMPUTER SCIENCE": "CS",
+        "COMPUTER SCIENCE/": "CS",  # Added to handle trailing slash
         "COMP SCI": "CS",
         "CS": "CS",
         "COMPUTER ENGINEERING": "EC",
@@ -103,14 +99,12 @@ def _get_major_query(major_source, college_name=None):
         target_code = full_major
 
     if target_code:
-        query = Q(code__icontains=f" {target_code} ") | Q(code__startswith=f"{target_code} ")
-        query |= Q(code__istartswith=f"CAS {target_code} ")
-        query |= Q(code__istartswith=f"ENG {target_code} ")
-        query |= Q(code__istartswith=f"QST {target_code} ")
-        query |= Q(code__istartswith=f"COM {target_code} ")
+        query = Q(code__icontains=f' {target_code} ') | Q(code__istartswith=f'{target_code} ')
         
         if college_name:
-            query &= Q(code__icontains=college_name)
+            query |= Q(code__istartswith=f'{college_name} {target_code} ')
+        
+        return query
     else:
         # Name-based search as last resort
         tokens = [t for t in re.split(r'[^a-z0-9]+', major_source.lower()) if t]
@@ -120,8 +114,7 @@ def _get_major_query(major_source, college_name=None):
             for token in tokens:
                 name_query &= Q(name__icontains=token)
             query = name_query
-    
-    return query
+        return query
 
 @login_required
 def catalog_view(request):
@@ -196,6 +189,14 @@ def _derive_course_level(code: str) -> str:
     bucket = min(500, (number // 100) * 100)
     return str(bucket)
 
+def fix_code(code):
+    parts = code.strip().upper().split()
+    if len(parts) >= 3:
+        return f"{parts[1]} {parts[2]}"
+    elif len(parts) == 2:
+        return f"{parts[0]} {parts[1]}"
+    return code.strip().upper()
+
 @login_required
 def course_graph_json(request):
     """Returns the JSON data for the Cytoscape graph."""
@@ -210,13 +211,19 @@ def course_graph_json(request):
         if profile:
             profile_major = (profile.major or '').strip()
             profile_college = (profile.college or '').strip()
-            completed_course_codes = set(profile.completed_courses.values_list('code', flat=True))
+            
+            # Get completed courses
+            completed_courses = profile.completed_courses.all()
+            for course in completed_courses:
+                completed_course_codes.add(course.code)
             
             # Get required courses for this major from bu_majors.json
             if profile_major:
                 major_info = get_major_requirements(profile_major, profile_college)
                 if major_info:
-                    required_course_codes = set(major_info['required_courses'])
+                    # Store normalized versions for matching
+                    for req_code in major_info['required_courses']:
+                        required_course_codes.add(fix_code(req_code))
             
     major_source = major_query or profile_major
     
@@ -230,7 +237,6 @@ def course_graph_json(request):
     
     if not initial_courses:
         # Fallback: If no major or no match, show a small subset (e.g. first 20)
-        # per user request to limit size.
         print("Graph Filter: Fallback to first 20 courses.")
         initial_courses = list(Course.objects.all()[:20])
 
@@ -260,14 +266,19 @@ def course_graph_json(request):
     sorted_courses = sorted(list(final_courses), key=lambda x: x.code)
 
     for course in sorted_courses:
+        # Check if this course is required (using normalized comparison)
+        norm_course_code = fix_code(course.code)
+        is_required = norm_course_code in required_course_codes
+        is_completed = course.code in completed_course_codes
+        
         nodes.append({
             "data": {
                 "id": course.code,
                 "label": course.code,
                 "name": course.name,
                 "level": _derive_course_level(course.code),
-                "completed": course.code in completed_course_codes,
-                "required": course.code in required_course_codes
+                "completed": is_completed,
+                "required": is_required
             }
         })
         
